@@ -1,13 +1,17 @@
-import React from "react";
 import { Command, HelpCircle, Settings } from "lucide-react";
 import { Button } from "../ui/button";
 import { CustomSidebarTrigger } from "./custom-sidebar-trigger";
-import { ThemeToggle } from "../theme-toggle";
 import { NavUser } from "./nav-user";
+import { Session } from "next-auth";
+import { LoginButton } from "../login-button";
 
-const CustomSidebarHeader = () => {
+interface Props {
+  session: Session | null;
+}
+
+const CustomSidebarHeader = ({ session }: Props) => {
   return (
-    <header className="flex justify-between w-full h-18 py-4 px-6 bg-sidebar">
+    <header className="flex justify-between w-full h-18 py-4 px-4 bg-sidebar">
       <div className="flex items-center gap-5">
         <CustomSidebarTrigger />
         <Button variant="ghost" size="lg" asChild>
@@ -21,29 +25,31 @@ const CustomSidebarHeader = () => {
           </a>
         </Button>
       </div>
-      <div className="flex items-center">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="cursor-pointer rounded-full"
-        >
-          {<HelpCircle className="w-6 h-6" />}
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="cursor-pointer rounded-full"
-        >
-          {<Settings />}
-        </Button>
-        <ThemeToggle />
-        <NavUser
-          user={{
-            name: "",
-            email: "",
-            avatar: "",
-          }}
-        />
+
+      <div className="flex items-center gap-1">
+        {session ? (
+          <>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="cursor-pointer rounded-full"
+            >
+              {<HelpCircle className="w-6 h-6" />}
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="cursor-pointer rounded-full"
+            >
+              {<Settings />}
+            </Button>
+            <NavUser user={session?.user} />
+          </>
+        ) : (
+          <>
+            <LoginButton />
+          </>
+        )}
       </div>
     </header>
   );

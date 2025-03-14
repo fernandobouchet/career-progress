@@ -1,16 +1,18 @@
 "use client";
 
 import {
-  BookOpen,
-  Bot,
   Home,
   BookText,
   BarChart3,
-  Code,
-  Palette,
+  Gamepad2,
+  Server,
+  BrainCircuit,
+  SquareTerminal,
+  Laptop,
+  GraduationCap,
 } from "lucide-react";
 
-import { NavMain } from "./nav-main";
+import { CustomSidebarGroup } from "./custom-side-bar-group";
 import {
   Sidebar,
   SidebarContent,
@@ -20,18 +22,15 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import Link from "next/link";
+import { ThemeToggle } from "../theme-toggle";
 
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
   navMain: [
     {
-      title: "Ingeniería",
+      title: "Licenciatura Informática",
       url: "#",
-      icon: Code,
+      icon: GraduationCap,
       isActive: true,
       items: [
         {
@@ -47,9 +46,9 @@ const data = {
       ],
     },
     {
-      title: "Medicina",
+      title: "Informática",
       url: "#",
-      icon: Bot,
+      icon: Laptop,
       items: [
         {
           title: "Programa",
@@ -64,9 +63,9 @@ const data = {
       ],
     },
     {
-      title: "Derecho",
+      title: "Programación",
       url: "#",
-      icon: BookOpen,
+      icon: SquareTerminal,
       items: [
         {
           title: "Programa",
@@ -81,12 +80,46 @@ const data = {
       ],
     },
     {
-      title: "Arquitectura",
+      title: "Redes",
       url: "#",
-      icon: Palette,
+      icon: Server,
       items: [
         {
-          title: "Programa",
+          title: "Plan de estudios",
+          url: "#",
+          icon: BookText,
+        },
+        {
+          title: "Estadísticas",
+          url: "#",
+          icon: BarChart3,
+        },
+      ],
+    },
+    {
+      title: "IA",
+      url: "#",
+      icon: BrainCircuit,
+      items: [
+        {
+          title: "Plan de estudios",
+          url: "#",
+          icon: BookText,
+        },
+        {
+          title: "Estadísticas",
+          url: "#",
+          icon: BarChart3,
+        },
+      ],
+    },
+    {
+      title: "Videojuegos",
+      url: "#",
+      icon: Gamepad2,
+      items: [
+        {
+          title: "Plan de estudios",
           url: "#",
           icon: BookText,
         },
@@ -105,24 +138,27 @@ const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
     <Sidebar
       variant="inset"
       {...props}
-      className="mt-18 h-[calc(100dvh-4.5rem)]"
+      className="mt-18 h-[calc(100dvh-4.5rem)] md:pr-0"
     >
-      <SidebarContent>
-        <SidebarGroup className="md:pr-0">
+      <SidebarContent className="pt-18 md:pt-0">
+        <SidebarGroup>
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton asChild>
-                <a href="#">
+                <Link href="/">
                   <Home className="size-4" />
                   <span>Inicio</span>
-                </a>
+                </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroup>
-        <NavMain items={data.navMain} />
+        <CustomSidebarGroup title="Licenciatura" items={[data.navMain[0]]} />
+        <CustomSidebarGroup title="Tecnicatura" items={data.navMain.slice(1)} />
       </SidebarContent>
-      <SidebarFooter></SidebarFooter>
+      <SidebarFooter className="flex items-end">
+        <ThemeToggle />
+      </SidebarFooter>
     </Sidebar>
   );
 };

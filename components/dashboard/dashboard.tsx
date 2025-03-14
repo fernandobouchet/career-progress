@@ -1,15 +1,18 @@
 import { AppSidebar } from "@/components/dashboard/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { CustomSidebarHeader } from "./custom-sidebar-header";
+import { auth } from "@/server/auth";
 
-const Dashboard = ({
+const Dashboard = async ({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) => {
+  const session = await auth();
+
   return (
     <SidebarProvider className="flex-col h-full">
-      <CustomSidebarHeader />
+      <CustomSidebarHeader session={session} />
       <div className="flex min-h-[calc(100dvh-4.5rem)] bg-sidebar">
         <AppSidebar />
         <SidebarInset className="bg-sidebar m-0!">
