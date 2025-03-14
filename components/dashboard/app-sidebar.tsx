@@ -2,8 +2,6 @@
 
 import {
   Home,
-  BookText,
-  BarChart3,
   Gamepad2,
   Server,
   BrainCircuit,
@@ -24,116 +22,46 @@ import {
 } from "@/components/ui/sidebar";
 import Link from "next/link";
 import { ThemeToggle } from "../theme-toggle";
+import { usePathname } from "next/navigation";
 
 const data = {
   navMain: [
     {
       title: "Licenciatura Informática",
-      url: "#",
+      url: "licenciatura-informatica",
       icon: GraduationCap,
-      isActive: true,
-      items: [
-        {
-          title: "Programa",
-          url: "#",
-          icon: BookText,
-        },
-        {
-          title: "Estadísticas",
-          url: "#",
-          icon: BarChart3,
-        },
-      ],
     },
     {
       title: "Informática",
-      url: "#",
+      url: "tecnicatura-informatica",
       icon: Laptop,
-      items: [
-        {
-          title: "Programa",
-          url: "#",
-          icon: BookText,
-        },
-        {
-          title: "Estadísticas",
-          url: "#",
-          icon: BarChart3,
-        },
-      ],
     },
     {
       title: "Programación",
-      url: "#",
+      url: "tecnicatura-programacion",
       icon: SquareTerminal,
-      items: [
-        {
-          title: "Programa",
-          url: "#",
-          icon: BookText,
-        },
-        {
-          title: "Estadísticas",
-          url: "#",
-          icon: BarChart3,
-        },
-      ],
     },
     {
       title: "Redes",
-      url: "#",
+      url: "tecnicatura-redes",
       icon: Server,
-      items: [
-        {
-          title: "Plan de estudios",
-          url: "#",
-          icon: BookText,
-        },
-        {
-          title: "Estadísticas",
-          url: "#",
-          icon: BarChart3,
-        },
-      ],
     },
     {
       title: "IA",
-      url: "#",
+      url: "tecnicatura-ia",
       icon: BrainCircuit,
-      items: [
-        {
-          title: "Plan de estudios",
-          url: "#",
-          icon: BookText,
-        },
-        {
-          title: "Estadísticas",
-          url: "#",
-          icon: BarChart3,
-        },
-      ],
     },
     {
       title: "Videojuegos",
-      url: "#",
+      url: "tecnicatura-videojuegos",
       icon: Gamepad2,
-      items: [
-        {
-          title: "Plan de estudios",
-          url: "#",
-          icon: BookText,
-        },
-        {
-          title: "Estadísticas",
-          url: "#",
-          icon: BarChart3,
-        },
-      ],
     },
   ],
 };
 
 const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
+  const pathName = usePathname();
+
   return (
     <Sidebar
       variant="inset"
@@ -144,7 +72,7 @@ const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
         <SidebarGroup>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild>
+              <SidebarMenuButton asChild isActive={pathName === "/"}>
                 <Link href="/">
                   <Home className="size-4" />
                   <span>Inicio</span>
