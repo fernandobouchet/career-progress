@@ -15,7 +15,8 @@ import { activities, usersActivities } from "./activity";
 export const careers = pgTable("career", {
   id: serial("id").primaryKey(),
   name: text("name").unique().notNull(),
-  isIntermediate: boolean("is_intermediate").default(false).notNull(),
+  slug: text("slug").unique().notNull(),
+  isDegree: boolean("is_degree").default(true).notNull(),
   parentCareerId: integer("parent_career_id").references(
     (): AnyPgColumn => careers.id
   ),
