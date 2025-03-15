@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  BarChart3,
-  BookText,
-  ChevronRight,
-  type LucideIcon,
-} from "lucide-react";
+import { BarChart3, BookText, ChevronRight, LucideProps } from "lucide-react";
 
 import {
   Collapsible,
@@ -38,17 +33,12 @@ const subItems = [
   },
 ];
 
-const CustomSidebarGroup = ({
-  title,
-  items,
-}: {
+interface Props {
   title: string;
-  items: {
-    title: string;
-    url: string;
-    icon: LucideIcon;
-  }[];
-}) => {
+  items: (career & { icon: React.ComponentType<LucideProps> })[];
+}
+
+const CustomSidebarGroup = ({ title, items }: Props) => {
   const pathName = usePathname();
 
   return (
@@ -56,11 +46,11 @@ const CustomSidebarGroup = ({
       <SidebarGroupLabel>{title}</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => {
-          const isActive = pathName.startsWith(`/${item.url}`);
-
+          const isActive = pathName.startsWith(`/${item.slug}`);
+          const itemName = item.name.split(" ").slice(2).join(" ");
           return (
             <Collapsible
-              key={item.title}
+              key={item.slug}
               asChild
               defaultOpen={isActive}
               className="group/collapsible"
@@ -68,13 +58,13 @@ const CustomSidebarGroup = ({
               <SidebarMenuItem>
                 <CollapsibleTrigger asChild>
                   <SidebarMenuButton
-                    tooltip={item.title}
+                    tooltip={itemName}
                     className={`${
                       isActive ? "bg-accent" : "bg-sidebar"
-                    } cursor-pointer`}
+                    } flex w-fit cursor-pointer`}
                   >
                     {item.icon && <item.icon />}
-                    <span>{item.title}</span>
+                    <span className="line-cl">{itemName}</span>
                     <ChevronRight
                       className={`ml-auto transition-transform duration-200 ${
                         isActive ? "rotate-90" : ""
@@ -86,7 +76,7 @@ const CustomSidebarGroup = ({
                   <SidebarMenuSub>
                     {subItems.map((subItem) => {
                       const isSubItemActive = pathName.includes(
-                        `/${item.url}/${subItem.url}`
+                        `/${item.slug}/${subItem.url}`
                       );
 
                       return (
@@ -97,7 +87,7 @@ const CustomSidebarGroup = ({
                               isSubItemActive ? "bg-accent" : "bg-sidebar"
                             } cursor-pointer`}
                           >
-                            <Link href={`/${item.url}/${subItem.url}`}>
+                            <Link href={`/${item.slug}/${subItem.url}`}>
                               {subItem.icon && (
                                 <subItem.icon className="size-4 mr-1" />
                               )}
