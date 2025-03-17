@@ -61,10 +61,10 @@ const CustomSidebarGroup = ({ title, items }: Props) => {
                     tooltip={itemName}
                     className={`${
                       isActive ? "bg-accent" : "bg-sidebar"
-                    } flex w-fit cursor-pointer`}
+                    } flex w-full cursor-pointer`}
                   >
                     {item.icon && <item.icon />}
-                    <span className="line-cl">{itemName}</span>
+                    <span className="line-clamp-1">{itemName}</span>
                     <ChevronRight
                       className={`ml-auto transition-transform duration-200 ${
                         isActive ? "rotate-90" : ""
