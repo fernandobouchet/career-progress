@@ -15,6 +15,13 @@
       "when": 1742000802322,
       "tag": "0001_worthless_oracle",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1742260722465,
+      "tag": "0002_mushy_hardball",
+      "breakpoints": true
     }
   ]
 }
