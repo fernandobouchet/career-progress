@@ -11,17 +11,25 @@ import {
 import { relations } from "drizzle-orm";
 import { coursesStatusEnum } from "./enums";
 import { users } from "./user";
-import { careers, careersCourses, correlatives, equivalents } from "./career";
+import {
+  careers,
+  careersCourses,
+  correlatives,
+  equivalents,
+  optatives,
+} from "./career";
 import { activities } from "./activity";
 import { courseReviews } from "./review";
 
 export const courses = pgTable("course", {
   id: serial("id").primaryKey(),
   name: text("name").unique().notNull(),
+  info: text("info"),
   infoUrl: text("info_url"),
   area: text("area"),
   hsWeekly: integer("hs_weekly"),
   hsTotal: integer("hs_total"),
+  code: text("code"),
   isPlaceholder: boolean("is_placeholder").default(false).notNull(),
   parentOptionId: integer("parent_option_id").references(
     (): AnyPgColumn => courses.id
@@ -49,11 +57,12 @@ export const usersCourses = pgTable(
   },
   (table) => [unique().on(table.courseId, table.userId, table.careerId)]
 );
-
 export const coursesRelations = relations(courses, ({ many, one }) => ({
   careers: many(careersCourses),
   correlatives: many(correlatives, { relationName: "courseCorrelatives" }),
   requiredBy: many(correlatives, { relationName: "requiredCourses" }),
+  optatives: many(optatives, { relationName: "optativeCourses" }),
+  optativeOptions: many(optatives, { relationName: "optionCourses" }),
   progress: many(usersCourses),
   baseEquivs: many(equivalents, { relationName: "baseCourses" }),
   targetEquivs: many(equivalents, { relationName: "targetCourses" }),

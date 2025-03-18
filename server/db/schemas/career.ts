@@ -8,7 +8,7 @@ import {
   AnyPgColumn,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-import { courses } from "./course";
+import { courses, usersCourses } from "./course";
 import { users } from "./user";
 import { activities, usersActivities } from "./activity";
 
@@ -47,7 +47,6 @@ export const careersCourses = pgTable(
     courseId: integer("course_id")
       .notNull()
       .references(() => courses.id, { onDelete: "cascade" }),
-    isObligatory: boolean("is_obligatory").default(true).notNull(),
     periodId: integer("period_id").references(() => periods.id, {
       onDelete: "cascade",
     }),
@@ -97,6 +96,28 @@ export const equivalents = pgTable(
   ]
 );
 
+export const optatives = pgTable(
+  "optative",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    careerId: integer("career_id")
+      .notNull()
+      .references(() => careers.id, { onDelete: "cascade" }),
+    courseId: integer("course_id")
+      .notNull()
+      .references(() => courses.id, { onDelete: "cascade" }),
+    periodId: integer("period_id").references(() => periods.id, {
+      onDelete: "cascade",
+    }),
+    optionCourseId: integer("option_course_id")
+      .notNull()
+      .references(() => courses.id, { onDelete: "cascade" }),
+  },
+  (table) => [unique().on(table.careerId, table.courseId, table.optionCourseId)]
+);
+
 export const usersCareers = pgTable(
   "user_career",
   {
@@ -113,11 +134,22 @@ export const usersCareers = pgTable(
   (table) => [unique().on(table.careerId, table.userId)]
 );
 
+export const careerCourseDependencies = pgTable("career_course_dependency", {
+  id: serial("id").primaryKey(),
+  careerCourseId: integer("career_course_id")
+    .notNull()
+    .references(() => careersCourses.id),
+  prerequisiteCareerCourseId: integer("prerequisite_career_course_id")
+    .notNull()
+    .references(() => careersCourses.id),
+});
+
 export const careersRelations = relations(careers, ({ many, one }) => ({
   periods: many(periods),
   courses: many(careersCourses),
   correlatives: many(correlatives),
   equivalents: many(equivalents),
+  optatives: many(optatives),
   users: many(usersCareers),
   activities: many(activities),
   userActivities: many(usersActivities),
@@ -126,6 +158,7 @@ export const careersRelations = relations(careers, ({ many, one }) => ({
     references: [careers.id],
   }),
   childCareers: many(careers),
+  userCourses: many(usersCourses),
 }));
 
 export const periodsRelations = relations(periods, ({ one, many }) => ({
@@ -134,6 +167,7 @@ export const periodsRelations = relations(periods, ({ one, many }) => ({
     references: [careers.id],
   }),
   courses: many(careersCourses),
+  optatives: many(optatives),
 }));
 
 export const careersCoursesRelations = relations(careersCourses, ({ one }) => ({
@@ -165,6 +199,27 @@ export const correlativesRelations = relations(correlatives, ({ one }) => ({
     fields: [correlatives.requiredCourseId],
     references: [courses.id],
     relationName: "requiredCourses",
+  }),
+}));
+
+export const optativesRelations = relations(optatives, ({ one }) => ({
+  career: one(careers, {
+    fields: [optatives.careerId],
+    references: [careers.id],
+  }),
+  course: one(courses, {
+    fields: [optatives.courseId],
+    references: [courses.id],
+    relationName: "optativeCourses",
+  }),
+  optionCourse: one(courses, {
+    fields: [optatives.optionCourseId],
+    references: [courses.id],
+    relationName: "optionCourses",
+  }),
+  period: one(periods, {
+    fields: [optatives.periodId],
+    references: [periods.id],
   }),
 }));
 
