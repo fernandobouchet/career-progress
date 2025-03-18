@@ -134,16 +134,6 @@ export const usersCareers = pgTable(
   (table) => [unique().on(table.careerId, table.userId)]
 );
 
-export const careerCourseDependencies = pgTable("career_course_dependency", {
-  id: serial("id").primaryKey(),
-  careerCourseId: integer("career_course_id")
-    .notNull()
-    .references(() => careersCourses.id),
-  prerequisiteCareerCourseId: integer("prerequisite_career_course_id")
-    .notNull()
-    .references(() => careersCourses.id),
-});
-
 export const careersRelations = relations(careers, ({ many, one }) => ({
   periods: many(periods),
   courses: many(careersCourses),
