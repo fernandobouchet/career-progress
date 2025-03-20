@@ -1,4 +1,4 @@
-export const careers = [
+export const careersSeed = [
   {
     id: 1,
     name: "Licenciatura en Informática",

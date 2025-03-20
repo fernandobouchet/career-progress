@@ -1,34 +1,20 @@
 // seed.js
 import { drizzle } from "drizzle-orm/node-postgres";
 import * as schema from "./schema";
-import { careers } from "./seeds/careers";
-import { periods } from "./seeds/periods";
+import { careersSeed } from "./seeds/careers";
+import { periodsSeed } from "./seeds/periods";
 import { sql } from "drizzle-orm";
+import { coursesSeed } from "./seeds/courses";
+import { careersCoursesSeed } from "./seeds/career_courses";
 
 export const db = drizzle(process.env.DATABASE_URL!, { schema });
-
-const courses = [
-  { id: 1, name: "Matemáticas I", hsWeekly: 4, hsTotal: 64 },
-  { id: 2, name: "Física I", hsWeekly: 4, hsTotal: 64 },
-  { id: 3, name: "Programación I", hsWeekly: 6, hsTotal: 96 },
-  { id: 4, name: "Introducción a la Programación", hsWeekly: 5, hsTotal: 80 },
-  { id: 5, name: "Bases de Datos", hsWeekly: 4, hsTotal: 64 },
-];
-
-const careersCourses = [
-  { id: "cc-1", careerId: 1, courseId: 1, isObligatory: true, periodId: 1 },
-  { id: "cc-2", careerId: 1, courseId: 2, isObligatory: true, periodId: 1 },
-  { id: "cc-3", careerId: 1, courseId: 3, isObligatory: true, periodId: 2 },
-  { id: "cc-4", careerId: 2, courseId: 4, isObligatory: true, periodId: 4 },
-  { id: "cc-5", careerId: 2, courseId: 5, isObligatory: true, periodId: 5 },
-];
 
 async function seed() {
   try {
     console.log("Insertando/Actualizando carreras...");
     await db
       .insert(schema.careers)
-      .values(careers)
+      .values(careersSeed)
       .onConflictDoUpdate({
         target: schema.careers.id,
         set: {
@@ -43,7 +29,7 @@ async function seed() {
     console.log("Insertando/Actualizando períodos...");
     await db
       .insert(schema.periods)
-      .values(periods)
+      .values(periodsSeed)
       .onConflictDoUpdate({
         target: schema.periods.id,
         set: {
@@ -55,7 +41,7 @@ async function seed() {
     console.log("Insertando/Actualizando cursos...");
     await db
       .insert(schema.courses)
-      .values(courses)
+      .values(coursesSeed)
       .onConflictDoUpdate({
         target: schema.courses.id,
         set: {
@@ -68,7 +54,7 @@ async function seed() {
     console.log("Insertando/Actualizando relaciones carreras-cursos...");
     await db
       .insert(schema.careersCourses)
-      .values(careersCourses)
+      .values(careersCoursesSeed)
       .onConflictDoUpdate({
         target: schema.careersCourses.id,
         set: {

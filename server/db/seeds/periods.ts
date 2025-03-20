@@ -1,12 +1,11 @@
 // server/db/seed/seeds/periods.ts
-export const periods = [
+export const periodsSeed = [
   // Licenciatura en Informática (5 períodos)
   { id: 1, order: 1, careerId: 1 },
   { id: 2, order: 2, careerId: 1 },
   { id: 3, order: 3, careerId: 1 },
   { id: 4, order: 4, careerId: 1 },
   { id: 5, order: 5, careerId: 1 },
-  { id: 6, order: 6, careerId: 1 },
 
   // Tecnicatura en Informática (6 períodos)
   { id: 7, order: 1, careerId: 2 },
