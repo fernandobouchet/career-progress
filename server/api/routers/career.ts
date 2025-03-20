@@ -12,20 +12,30 @@ export const careerRouter = createTRPCRouter({
   getBySlug: publicProcedure
     .input(z.object({ slug: z.string() }))
     .query(async ({ input: { slug }, ctx }) => {
-      const career = await ctx.db
-        .select({
-          id: careers.id,
-          name: careers.name,
-          slug: careers.slug,
-          isDegree: careers.isDegree,
-          parentCareerId: careers.parentCareerId,
-          requiredExtraCredits: careers.requiredExtraCredits,
-        })
-        .from(careers)
-        .where(eq(careers.slug, slug))
-        .limit(1);
+      const career = await ctx.db.query.careers.findFirst({
+        where: (careers, { eq }) => eq(careers.slug, slug),
+        with: {
+          periods: {
+            orderBy: (periods, { asc }) => asc(periods.order),
+            with: {
+              courses: {
+                with: {
+                  course: {},
+                },
+              },
+            },
+          },
+        },
+      });
 
-      return career[0] || null;
+      if (!career) return null;
+
+      const periods = career.periods.map((period) => ({
+        ...period,
+        courses: period.courses.map((c) => c.course),
+      }));
+
+      return { ...career, periods };
     }),
   getById: publicProcedure
     .input(z.object({ id: z.number() }))
