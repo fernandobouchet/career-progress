@@ -1,4 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CourseCardTrigger } from "./course-card/course-card-trigger";
 
 interface Props {
   periods: period[];
@@ -23,11 +24,10 @@ const PeriodsTabs = ({ periods }: Props) => {
         <TabsContent
           key={period.id}
           value={period.order.toString()}
-          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-5"
+          className="w-full grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-5"
         >
           {period.courses?.map((course) => {
-            console.log(course);
-            return <p key={course.id}>{course.name}</p>;
+            return <CourseCardTrigger key={course.id} course={course} />;
           })}
         </TabsContent>
       ))}

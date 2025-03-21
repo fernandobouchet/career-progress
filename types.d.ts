@@ -20,7 +20,7 @@ type period = {
   courses?: courses[];
 };
 
-type courses = {
+type course = {
   id: number;
   name: string;
   info: string | null;
