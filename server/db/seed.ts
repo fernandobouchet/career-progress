@@ -11,6 +11,10 @@ export const db = drizzle(process.env.DATABASE_URL!, { schema });
 
 async function seed() {
   try {
+    await db.delete(schema.careers);
+    await db.delete(schema.periods);
+    await db.delete(schema.courses);
+    await db.delete(schema.careersCourses);
     console.log("Insertando/Actualizando carreras...");
     await db
       .insert(schema.careers)
