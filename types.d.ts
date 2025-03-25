@@ -4,6 +4,13 @@ enum rolesEnum {
   "MOD",
 }
 
+enum statusEnum {
+  "PENDIENTE",
+  "CURSANDO",
+  "REGULARIZADA",
+  "APROBADA",
+}
+
 type career = {
   id: number;
   name: string;
@@ -31,4 +38,5 @@ type course = {
   code: string | null;
   isPlaceholder: boolean;
   parentOptionId: number | null;
+  status: keyof typeof statusEnum | null;
 };
