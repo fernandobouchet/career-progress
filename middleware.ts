@@ -4,11 +4,12 @@ import { NextResponse } from "next/server";
 
 const { auth } = NextAuth(authConfig);
 
-export default auth(async function middleware(req) {
+export default auth(async function middleware() {
+  /*
   if (!req.auth && req.nextUrl.pathname !== "/login") {
     const newUrl = new URL("/login", req.nextUrl.origin);
     return Response.redirect(newUrl);
-  }
+  }*/
   return NextResponse.next();
 });
 
