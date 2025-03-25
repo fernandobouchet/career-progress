@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Drawer, DrawerTrigger } from "../ui/drawer";
 import { CourseCard } from "./course-card";
-import { CourseCardContent } from "./course-card-content";
+import { CourseCardContentWrapper } from "./course-card-content-wrapper";
 
 interface Props {
   course: course;
@@ -25,7 +25,10 @@ const CourseCardTrigger = ({ course }: Props) => {
         <DrawerTrigger>
           <CourseCard course={course} />
         </DrawerTrigger>
-        <CourseCardContent course={course} handleOnClose={handleOnClose} />
+        <CourseCardContentWrapper
+          course={course}
+          handleOnClose={handleOnClose}
+        />
       </Drawer>
     );
   }
@@ -35,7 +38,7 @@ const CourseCardTrigger = ({ course }: Props) => {
       <DialogTrigger>
         <CourseCard course={course} />
       </DialogTrigger>
-      <CourseCardContent course={course} handleOnClose={handleOnClose} />
+      <CourseCardContentWrapper course={course} handleOnClose={handleOnClose} />
     </Dialog>
   );
 };

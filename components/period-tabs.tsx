@@ -6,7 +6,6 @@ interface Props {
 }
 
 const PeriodsTabs = ({ periods }: Props) => {
-  console.log(periods);
   return (
     <Tabs defaultValue="1" className="w-full flex items-center">
       <TabsList className="flex w-full p-0 h-14 border-none rounded-3xl bg-sidebar">
