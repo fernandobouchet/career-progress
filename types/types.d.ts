@@ -38,5 +38,20 @@ type course = {
   code: string | null;
   isPlaceholder: boolean;
   parentOptionId: number | null;
-  status: keyof typeof statusEnum | null;
+  progress: userStatus;
+};
+
+type userStatus = {
+  id: string;
+  userId: string;
+  courseId: number;
+  careerId: number;
+  qualification: number | null;
+  status: keyof typeof statusEnum;
+  updatedAt: Date;
+} | null;
+
+type progressForm = {
+  status: keyof typeof statusEnum;
+  qualification: number | null;
 };
