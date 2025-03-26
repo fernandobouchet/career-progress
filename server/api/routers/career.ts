@@ -37,19 +37,20 @@ export const careerRouter = createTRPCRouter({
             period.courses.map(async (c) => {
               const course = c.course;
 
-              // Si el usuario está logueado, obtener el estado de la materia
               let userStatus = null;
               if (user) {
                 const userCourse = await ctx.db.query.usersCourses.findFirst({
                   where: (uc, { and, eq }) =>
                     and(eq(uc.userId, user.id), eq(uc.courseId, course.id)),
                 });
-                userStatus = userCourse ? userCourse.status : "PENDIENTE";
+                userStatus = userCourse
+                  ? { ...userCourse, status: userCourse.status ?? "PENDIENTE" }
+                  : null;
               }
 
               return {
                 ...course,
-                status: userStatus, // null si no está logueado, estado si sí lo está
+                progress: userStatus,
               };
             })
           );
