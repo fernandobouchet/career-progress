@@ -11,13 +11,7 @@ import {
 import { relations } from "drizzle-orm";
 import { coursesStatusEnum } from "./enums";
 import { users } from "./user";
-import {
-  careers,
-  careersCourses,
-  correlatives,
-  equivalents,
-  optatives,
-} from "./career";
+import { careersCourses, correlatives, equivalents, optatives } from "./career";
 import { activities } from "./activity";
 import { courseReviews } from "./review";
 
@@ -48,14 +42,11 @@ export const usersCourses = pgTable(
     userId: text("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
-    careerId: integer("career_id")
-      .notNull()
-      .references(() => careers.id, { onDelete: "cascade" }),
     qualification: integer("qualification"),
     status: coursesStatusEnum("status").default("PENDIENTE").notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
-  (table) => [unique().on(table.courseId, table.userId, table.careerId)]
+  (table) => [unique().on(table.courseId, table.userId)]
 );
 export const coursesRelations = relations(courses, ({ many, one }) => ({
   careers: many(careersCourses),
@@ -81,8 +72,4 @@ export const usersCoursesRelations = relations(usersCourses, ({ one }) => ({
     references: [courses.id],
   }),
   user: one(users, { fields: [usersCourses.userId], references: [users.id] }),
-  career: one(careers, {
-    fields: [usersCourses.careerId],
-    references: [careers.id],
-  }),
 }));
