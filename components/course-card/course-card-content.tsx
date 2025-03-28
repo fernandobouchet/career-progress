@@ -1,4 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+import { CourseCardForm } from "./form/course-card-form";
 
 interface Props {
   course: course;
@@ -28,7 +29,9 @@ const CourseCardContent = ({ course }: Props) => {
         <TabsContent value="info">
           <p className="text-sm">{course.info}</p>
         </TabsContent>
-        <TabsContent value="state">Estado de la materia</TabsContent>
+        <TabsContent value="state">
+          <CourseCardForm course={course} />
+        </TabsContent>
         <TabsContent value="comments">
           Comentarios / consejos sobre la materia.
         </TabsContent>

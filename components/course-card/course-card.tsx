@@ -12,7 +12,10 @@ const CourseCard = ({ course }: Props) => {
         <CardTitle className="text-start">{course.name}</CardTitle>
       </CardHeader>
       <CardFooter className="p-0">
-        <CourseStatusBadge className="ml-auto" status={course.status} />
+        <CourseStatusBadge
+          className="ml-auto"
+          status={course.progress?.status}
+        />
       </CardFooter>
     </Card>
   );
