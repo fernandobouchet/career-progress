@@ -1,11 +1,7 @@
 import { z } from "zod";
 
 import { eq } from "drizzle-orm";
-import {
-  createTRPCRouter,
-  protectedProcedure,
-  publicProcedure,
-} from "@/server/api/trpc";
+import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { careers } from "@/server/db/schema";
 
 export const careerRouter = createTRPCRouter({
@@ -61,8 +57,5 @@ export const careerRouter = createTRPCRouter({
         requiredExtraCredits: careers.requiredExtraCredits,
       })
       .from(careers);
-  }),
-  getSecretMessage: protectedProcedure.query(() => {
-    return "you can now see this secret message!";
   }),
 });

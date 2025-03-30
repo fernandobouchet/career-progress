@@ -4,6 +4,8 @@ import "./globals.css";
 import { ThemeProvider } from "next-themes";
 import { Dashboard } from "@/components/dashboard/dashboard";
 import { TRPCReactProvider } from "@/trpc/react";
+import { UserDataProvider } from "@/context/user-data-context";
+import { Toaster } from "@/components/ui/sonner";
 
 const openSans = Open_Sans({
   subsets: ["latin"],
@@ -30,7 +32,10 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <TRPCReactProvider>
-            <Dashboard>{children}</Dashboard>
+            <UserDataProvider>
+              <Dashboard>{children}</Dashboard>
+              <Toaster />
+            </UserDataProvider>
           </TRPCReactProvider>
         </ThemeProvider>
       </body>

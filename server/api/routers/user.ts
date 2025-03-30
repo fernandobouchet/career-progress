@@ -5,6 +5,16 @@ import { eq } from "drizzle-orm";
 import { z } from "zod";
 
 export const userRouter = createTRPCRouter({
+  getCourseProgress: protectedProcedure.query(async ({ ctx }) => {
+    const user = ctx.session?.user;
+
+    if (!user) return null;
+
+    const userCourses = await ctx.db.query.usersCourses.findMany({
+      where: (usersCourses, { eq }) => eq(usersCourses.userId, user.id),
+    });
+    return userCourses;
+  }),
   updateCourseProgress: protectedProcedure
     .input(
       z.object({
@@ -14,7 +24,7 @@ export const userRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ input: { courseId, status, qualification }, ctx }) => {
-      const user = await ctx.session?.user;
+      const user = ctx.session?.user;
 
       if (!user) return null;
 
@@ -35,26 +45,32 @@ export const userRouter = createTRPCRouter({
             .delete(usersCourses)
             .where(eq(usersCourses.id, userCourse.id));
         }
-        return { success: true };
+        return { success: true, userCourse: null };
       }
 
       if (!userCourse) {
-        await ctx.db.insert(usersCourses).values({
-          userId: user.id,
-          courseId: courseId,
-          status,
-          qualification,
-        });
+        const [newUserCourse] = await ctx.db
+          .insert(usersCourses)
+          .values({
+            userId: user.id,
+            courseId: courseId,
+            status,
+            qualification,
+            updatedAt: new Date(),
+          })
+          .returning();
+        return { success: true, userCourse: newUserCourse };
       } else {
-        await ctx.db
+        const [updatedUserCourse] = await ctx.db
           .update(usersCourses)
           .set({
             status,
             qualification,
+            updatedAt: new Date(),
           })
-          .where(eq(usersCourses.id, userCourse.id));
+          .where(eq(usersCourses.id, userCourse.id))
+          .returning();
+        return { success: true, userCourse: updatedUserCourse };
       }
-
-      return { success: true };
     }),
 });

@@ -21,7 +21,7 @@ import {
 } from "../../ui/select";
 import { CourseCardFormStatus } from "./course-card-form-status";
 import { statusKeys } from "@/types/constants";
-import { api } from "@/trpc/react";
+import { useUserData } from "@/context/user-data-context";
 
 const formSchema = z.object({
   status: z.enum(statusKeys),
@@ -39,6 +39,8 @@ interface Props {
 }
 
 const CourseCardForm = ({ course }: Props) => {
+  const { updateCourseStatus } = useUserData();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -47,15 +49,8 @@ const CourseCardForm = ({ course }: Props) => {
     },
   });
 
-  const mutation = api.user.updateCourseProgress.useMutation();
-
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    mutation.mutate({
-      status: values.status,
-      qualification: values.qualification,
-      courseId: course.id,
-    });
-
+    updateCourseStatus(course.id, values.status, values.qualification);
     console.log(values);
   }
 
