@@ -38,7 +38,7 @@ const iconMap: { [key: string]: React.ComponentType<LucideProps> } = {
 const AppSidebar = ({
   careers,
   ...props
-}: { careers: career[] } & React.ComponentProps<typeof Sidebar>) => {
+}: { careers: Career[] } & React.ComponentProps<typeof Sidebar>) => {
   const pathName = usePathname();
   const initialCareers = careers;
 

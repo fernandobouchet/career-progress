@@ -8,7 +8,7 @@ import { CourseCard } from "./course-card";
 import { CourseCardContentWrapper } from "./course-card-content-wrapper";
 
 interface Props {
-  course: course;
+  course: Course;
 }
 
 const CourseCardTrigger = ({ course }: Props) => {

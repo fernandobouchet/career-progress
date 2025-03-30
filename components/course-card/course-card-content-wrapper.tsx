@@ -12,7 +12,7 @@ import { Button } from "../ui/button";
 import { CourseCardContent } from "./course-card-content";
 
 interface Props {
-  course: course;
+  course: Course;
   handleOnClose: () => void;
 }
 

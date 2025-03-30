@@ -1,42 +1,40 @@
-enum rolesEnum {
-  "ADMIN",
-  "USER",
-  "MOD",
+enum RolesEnum {
+  ADMIN = "ADMIN",
+  USER = "USER",
+  MOD = "MOD",
 }
 
-enum statusEnum {
-  "PENDIENTE",
-  "CURSANDO",
-  "REGULARIZADA",
-  "APROBADA",
+enum StatusEnum {
+  PENDIENTE = "PENDIENTE",
+  CURSANDO = "CURSANDO",
+  REGULARIZADA = "REGULARIZADA",
+  APROBADA = "APROBADA",
 }
 
-type career = {
+type Career = {
   id: number;
   name: string;
   slug: string;
   isDegree: boolean;
   parentCareerId: number | null;
   requiredExtraCredits: number | null;
+  periods?: Period[];
 };
 
-type period = {
+type Period = {
   id: number;
   careerId: number;
   order: number;
-  courses?: courses[];
+  courses?: CourseRelation[];
 };
 
-type courses = {
-  id: string;
-  courseId: number;
-  careerId: number;
+type CourseRelation = {
   courseId: number;
   periodId: number | null;
-  course: course;
+  course: Course;
 };
 
-type course = {
+type Course = {
   id: number;
   name: string;
   info: string | null;
@@ -47,20 +45,19 @@ type course = {
   code: string | null;
   isPlaceholder: boolean;
   parentOptionId: number | null;
-  progress?: userStatus;
+  progress?: UserStatus;
 };
 
-type userStatus = {
+type UserStatus = {
   id: string;
   userId: string;
   courseId: number;
-  careerId: number;
   qualification: number | null;
-  status: keyof typeof statusEnum;
+  status: keyof typeof StatusEnum;
   updatedAt: Date;
 } | null;
 
-type progressForm = {
-  status: keyof typeof statusEnum;
+type ProgressForm = {
+  status: keyof typeof StatusEnum;
   qualification: number | null;
 };

@@ -2,7 +2,7 @@ import { Card, CardFooter, CardHeader, CardTitle } from "../ui/card";
 import { CourseStatusBadge } from "./course-status-badge";
 
 interface Props {
-  course: course;
+  course: Course;
 }
 
 const CourseCard = ({ course }: Props) => {

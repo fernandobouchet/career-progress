@@ -4,7 +4,7 @@ import { CustomSidebarHeader } from "./custom-sidebar-header";
 import { auth } from "@/server/auth";
 import { db } from "@/server/db/drizzle";
 
-async function getStaticCareers(): Promise<career[]> {
+async function getStaticCareers(): Promise<Career[]> {
   return await db.query.careers.findMany();
 }
 

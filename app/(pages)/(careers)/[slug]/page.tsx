@@ -1,4 +1,4 @@
-import { PeriodsTabs } from "@/components/period-tabs";
+import { CareerProgramWrapper } from "@/components/career-program-wrapper";
 import { db } from "@/server/db/drizzle";
 import { notFound } from "next/navigation";
 
@@ -49,7 +49,7 @@ const Page = async ({ params }: Props) => {
         <h2 className="text-xl font-medium">
           {career.isDegree ? "Año" : "Cuatrimestre"}
         </h2>
-        <PeriodsTabs periods={career.periods} />
+        <CareerProgramWrapper career={career} />
       </section>
     </div>
   );

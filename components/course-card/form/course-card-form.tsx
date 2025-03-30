@@ -32,10 +32,10 @@ const formSchema = z.object({
     .nullable(),
 });
 
-export type progressFormReturn = UseFormReturn<progressForm>;
+export type ProgressFormReturn = UseFormReturn<ProgressForm>;
 
 interface Props {
-  course: course;
+  course: Course;
 }
 
 const CourseCardForm = ({ course }: Props) => {

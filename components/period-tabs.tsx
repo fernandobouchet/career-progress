@@ -2,7 +2,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CourseCardTrigger } from "./course-card/course-card-trigger";
 
 interface Props {
-  periods: period[];
+  periods: Period[];
 }
 
 const PeriodsTabs = ({ periods }: Props) => {

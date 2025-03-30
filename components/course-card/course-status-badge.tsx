@@ -1,7 +1,7 @@
 import { Badge } from "../ui/badge";
 
 interface Props {
-  status: keyof typeof statusEnum | undefined;
+  status: keyof typeof StatusEnum | undefined;
   className?: string;
 }
 

@@ -12,10 +12,10 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { progressFormReturn } from "./course-card-form";
+import { ProgressFormReturn } from "./course-card-form";
 
 interface Props {
-  form: progressFormReturn;
+  form: ProgressFormReturn;
 }
 
 const CourseCardFormQualification = ({ form }: Props) => {

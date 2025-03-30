@@ -2,7 +2,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { CourseCardForm } from "./form/course-card-form";
 
 interface Props {
-  course: course;
+  course: Course;
 }
 
 const tabsInfo = [

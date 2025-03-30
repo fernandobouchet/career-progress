@@ -1,6 +1,6 @@
-import { statusEnum } from "./enums";
+import { StatusEnum } from "./enums";
 
-export const statusKeys = Object.keys(statusEnum) as [
-  keyof typeof statusEnum,
-  ...Array<keyof typeof statusEnum>
+export const statusKeys = Object.keys(StatusEnum) as [
+  keyof typeof StatusEnum,
+  ...Array<keyof typeof StatusEnum>
 ];

@@ -14,7 +14,7 @@ import { usePathname } from "next/navigation";
 
 interface Props {
   title: string;
-  items: (career & { icon: React.ComponentType<LucideProps> })[];
+  items: (Career & { icon: React.ComponentType<LucideProps> })[];
 }
 
 const CustomSidebarGroup = ({ title, items }: Props) => {
