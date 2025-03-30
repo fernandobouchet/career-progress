@@ -1,18 +1,47 @@
 import { PeriodsTabs } from "@/components/period-tabs";
-import { api } from "@/trpc/server";
+import { db } from "@/server/db/drizzle";
 import { notFound } from "next/navigation";
 
 interface Props {
   params: Promise<{ slug: string }>;
 }
 
+export async function generateStaticParams() {
+  const allCareers = await db.query.careers.findMany();
+  return allCareers.map((career) => ({
+    slug: career.slug,
+  }));
+}
+
+async function getCareerBySlug(slug: string) {
+  const career = await db.query.careers.findFirst({
+    where: (careers, { eq }) => eq(careers.slug, slug),
+    with: {
+      periods: {
+        orderBy: (periods, { asc }) => asc(periods.order),
+        with: {
+          courses: {
+            with: {
+              course: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  return career;
+}
+
 const Page = async ({ params }: Props) => {
   const { slug } = await params;
 
-  const career = await api.career.getBySlug({ slug: slug });
+  const career = await getCareerBySlug(slug);
+
   if (!career) {
     return notFound();
   }
+
   return (
     <div className="w-full h-full flex flex-col items-center text-center">
       <h1 className="font-semibold text-2xl">{career.name}</h1>

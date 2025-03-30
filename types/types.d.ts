@@ -27,6 +27,15 @@ type period = {
   courses?: courses[];
 };
 
+type courses = {
+  id: string;
+  courseId: number;
+  careerId: number;
+  courseId: number;
+  periodId: number | null;
+  course: course;
+};
+
 type course = {
   id: number;
   name: string;
@@ -38,7 +47,7 @@ type course = {
   code: string | null;
   isPlaceholder: boolean;
   parentOptionId: number | null;
-  progress: userStatus;
+  progress?: userStatus;
 };
 
 type userStatus = {

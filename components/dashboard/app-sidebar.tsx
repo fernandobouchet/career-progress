@@ -25,8 +25,6 @@ import {
 import Link from "next/link";
 import { ThemeToggle } from "../theme-toggle";
 import { usePathname } from "next/navigation";
-import { api } from "@/trpc/react";
-import { Skeleton } from "../ui/skeleton";
 
 const iconMap: { [key: string]: React.ComponentType<LucideProps> } = {
   "licenciatura-informatica": GraduationCap,
@@ -37,24 +35,14 @@ const iconMap: { [key: string]: React.ComponentType<LucideProps> } = {
   "tecnicatura-videojuegos": Gamepad2,
 };
 
-const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
+const AppSidebar = ({
+  careers,
+  ...props
+}: { careers: career[] } & React.ComponentProps<typeof Sidebar>) => {
   const pathName = usePathname();
-  const { data: careers, isLoading } = api.career.getAll.useQuery();
+  const initialCareers = careers;
 
-  if (isLoading) {
-    return (
-      <Sidebar
-        variant="inset"
-        {...props}
-        className="mt-18 h-[calc(100dvh-4.5rem)] md:pr-0"
-      >
-        <SidebarContent className="pt-18 md:pt-0">
-          <Skeleton className="w-full h-full" />
-        </SidebarContent>
-      </Sidebar>
-    );
-  }
-  const fetchedCareers = careers?.map((career) => ({
+  const fetchedCareers = initialCareers?.map((career) => ({
     ...career,
     icon: iconMap[career.slug] || FileWarning,
   }));

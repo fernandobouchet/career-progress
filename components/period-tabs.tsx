@@ -25,8 +25,13 @@ const PeriodsTabs = ({ periods }: Props) => {
           value={period.order.toString()}
           className="w-full grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-5"
         >
-          {period.courses?.map((course) => {
-            return <CourseCardTrigger key={course.id} course={course} />;
+          {period.courses?.map((courses) => {
+            return (
+              <CourseCardTrigger
+                key={courses.courseId}
+                course={courses.course}
+              />
+            );
           })}
         </TabsContent>
       ))}

@@ -12,7 +12,6 @@ export const careerRouter = createTRPCRouter({
   getBySlug: publicProcedure
     .input(z.object({ slug: z.string() }))
     .query(async ({ input: { slug }, ctx }) => {
-      const user = await ctx.session?.user;
       const career = await ctx.db.query.careers.findFirst({
         where: (careers, { eq }) => eq(careers.slug, slug),
         with: {
@@ -21,7 +20,7 @@ export const careerRouter = createTRPCRouter({
             with: {
               courses: {
                 with: {
-                  course: {},
+                  course: true,
                 },
               },
             },
@@ -31,38 +30,7 @@ export const careerRouter = createTRPCRouter({
 
       if (!career) return null;
 
-      const periods = await Promise.all(
-        career.periods.map(async (period) => {
-          const courses = await Promise.all(
-            period.courses.map(async (c) => {
-              const course = c.course;
-
-              let userStatus = null;
-              if (user) {
-                const userCourse = await ctx.db.query.usersCourses.findFirst({
-                  where: (uc, { and, eq }) =>
-                    and(eq(uc.userId, user.id), eq(uc.courseId, course.id)),
-                });
-                userStatus = userCourse
-                  ? { ...userCourse, status: userCourse.status ?? "PENDIENTE" }
-                  : null;
-              }
-
-              return {
-                ...course,
-                progress: userStatus,
-              };
-            })
-          );
-
-          return {
-            ...period,
-            courses,
-          };
-        })
-      );
-
-      return { ...career, periods };
+      return career;
     }),
   getById: publicProcedure
     .input(z.object({ id: z.number() }))

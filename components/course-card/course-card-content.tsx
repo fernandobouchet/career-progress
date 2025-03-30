@@ -8,7 +8,7 @@ interface Props {
 const tabsInfo = [
   { key: "info", title: "Información" },
   { key: "state", title: "Estado" },
-  { key: "comments", title: "Comentarios" },
+  { key: "reviews", title: "Valoraciones" },
 ];
 
 const CourseCardContent = ({ course }: Props) => {
