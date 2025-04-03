@@ -4,24 +4,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../../ui/select";
+import { Form } from "@/components/ui/form";
 import { CourseCardFormStatus } from "./course-card-form-status";
 import { statusKeys } from "@/types/constants";
 import { useUserData } from "@/context/user-data-context";
+import { CourseCardFormQualification } from "./course-card-form-qualification";
 
 const formSchema = z.object({
   status: z.enum(statusKeys),
@@ -36,9 +23,10 @@ export type ProgressFormReturn = UseFormReturn<ProgressForm>;
 
 interface Props {
   course: Course;
+  handleOnClose: () => void;
 }
 
-const CourseCardForm = ({ course }: Props) => {
+const CourseCardForm = ({ course, handleOnClose }: Props) => {
   const { updateCourseStatus } = useUserData();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -51,50 +39,23 @@ const CourseCardForm = ({ course }: Props) => {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     updateCourseStatus(course.id, values.status, values.qualification);
-    console.log(values);
+    handleOnClose();
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <CourseCardFormStatus form={form} />
-        <FormField
-          control={form.control}
-          name="qualification"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Calificación</FormLabel>
-              <Select
-                disabled={form.watch("status") !== "APROBADA"}
-                onValueChange={field.onChange}
-                defaultValue={
-                  course.progress?.qualification
-                    ? course.progress.qualification.toString()
-                    : undefined
-                }
-              >
-                <FormControl className="border-none bg-accent hover:bg-accent/80 [&>span]:mx-auto w-24">
-                  <SelectTrigger>
-                    <SelectValue placeholder={"-"} />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent className="border-none max-h-36 min-w-0">
-                  {[4, 5, 6, 7, 8, 9, 10].map((value) => (
-                    <SelectItem
-                      key={value}
-                      value={value.toString()}
-                      className="mx-auto text-center w-full"
-                    >
-                      {value.toString()}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Button type="submit">Submit</Button>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="flex flex-col justify-between p-4 h-full"
+      >
+        <p>Modifica el estado y/o la calificación de la materia.</p>
+        <div className="w-full flex justify-evenly">
+          <CourseCardFormStatus form={form} />
+          <CourseCardFormQualification form={form} />
+        </div>
+        <Button className="ml-auto" type="submit">
+          Guardar
+        </Button>
       </form>
     </Form>
   );

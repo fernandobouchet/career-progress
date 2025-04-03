@@ -7,7 +7,7 @@ interface Props {
 
 const CourseCard = ({ course }: Props) => {
   return (
-    <Card className="rounded-3xl flex flex-col justify-between h-full cursor-pointer p-4 text-sm border-none">
+    <Card className="rounded-2xl hover:bg-popover flex flex-col justify-between h-full cursor-pointer p-4 text-sm border-none">
       <CardHeader className="p-0">
         <CardTitle className="text-start">{course.name}</CardTitle>
       </CardHeader>

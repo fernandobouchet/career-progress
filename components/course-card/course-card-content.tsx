@@ -1,8 +1,10 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { CourseCardForm } from "./form/course-card-form";
+import { CourseCardInfo } from "./info/course-card-info";
 
 interface Props {
   course: Course;
+  handleOnClose: () => void;
 }
 
 const tabsInfo = [
@@ -11,10 +13,10 @@ const tabsInfo = [
   { key: "reviews", title: "Valoraciones" },
 ];
 
-const CourseCardContent = ({ course }: Props) => {
+const CourseCardContent = ({ course, handleOnClose }: Props) => {
   return (
-    <div className="w-full flex flex-col p-4 md:p-0">
-      <Tabs defaultValue={tabsInfo[0].key}>
+    <div className="w-full h-full flex flex-col p-4 md:p-0 overflow-auto">
+      <Tabs defaultValue={tabsInfo[0].key} className="h-full">
         <TabsList className="w-full rounded-3xl bg-sidebar h-14">
           {tabsInfo.map((item) => (
             <TabsTrigger
@@ -27,10 +29,10 @@ const CourseCardContent = ({ course }: Props) => {
           ))}
         </TabsList>
         <TabsContent value="info">
-          <p className="text-sm">{course.info}</p>
+          <CourseCardInfo course={course} />
         </TabsContent>
         <TabsContent value="state">
-          <CourseCardForm course={course} />
+          <CourseCardForm course={course} handleOnClose={handleOnClose} />
         </TabsContent>
         <TabsContent value="comments">
           Comentarios / consejos sobre la materia.

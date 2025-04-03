@@ -3,6 +3,7 @@
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   DrawerContent,
+  DrawerDescription,
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
@@ -10,6 +11,7 @@ import {
 import { DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { CourseCardContent } from "./course-card-content";
+import { DialogDescription } from "@radix-ui/react-dialog";
 
 interface Props {
   course: Course;
@@ -22,10 +24,11 @@ const CourseCardContentWrapper = ({ course, handleOnClose }: Props) => {
   if (isMobile) {
     return (
       <DrawerContent>
+        <DrawerDescription />
         <DrawerHeader className="text-left">
           <DrawerTitle>{course.name}</DrawerTitle>
         </DrawerHeader>
-        <CourseCardContent course={course} />
+        <CourseCardContent course={course} handleOnClose={handleOnClose} />
         <DrawerFooter className="pt-2">
           <Button variant="outline" onClick={handleOnClose}>
             Cancel
@@ -36,11 +39,12 @@ const CourseCardContentWrapper = ({ course, handleOnClose }: Props) => {
   }
 
   return (
-    <DialogContent className="sm:max-w-xl h-3/5  flex flex-col rounded-3xl">
+    <DialogContent className="sm:max-w-2xl min-h-3/5 flex flex-col rounded-3xl">
+      <DialogDescription />
       <DialogHeader>
         <DialogTitle>{course.name}</DialogTitle>
       </DialogHeader>
-      <CourseCardContent course={course} />
+      <CourseCardContent course={course} handleOnClose={handleOnClose} />
     </DialogContent>
   );
 };

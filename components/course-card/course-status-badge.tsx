@@ -8,7 +8,7 @@ interface Props {
 const CourseStatusBadge = ({ className, status }: Props) => {
   return (
     <Badge
-      className={`${className} ${
+      className={`${className} rounded-full ${
         status === "CURSANDO"
           ? "bg-studying text-studying-foreground"
           : status === "REGULARIZADA"
