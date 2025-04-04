@@ -23,13 +23,13 @@ const CourseCardInfo = ({ course }: Props) => {
         <div className="flex justify-between items-center">
           <h3 className="font-medium">Contenidos mínimos</h3>
         </div>
-        <p
-          className={`text-sm text-muted-foreground ${
-            expanded ? "" : "line-clamp-3"
+        <div
+          className={`text-sm text-muted-foreground overflow-hidden transition-all duration-500 ease-in-out ${
+            expanded ? "max-h-96" : "max-h-10"
           }`}
         >
-          {course.info}
-        </p>
+          <p>{course.info}</p>
+        </div>
         <Button
           variant="ghost"
           className="ml-auto cursor-pointer"
@@ -38,7 +38,6 @@ const CourseCardInfo = ({ course }: Props) => {
           {expanded ? "Mostrar menos" : "Mostrar más"}
         </Button>
       </div>
-
       <div className="space-y-2">
         <h3 className="font-medium">Carga horaria</h3>
         <div className="flex justify-around gap-4">
