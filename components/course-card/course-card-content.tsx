@@ -1,3 +1,4 @@
+import { ScrollArea } from "../ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { CourseCardForm } from "./form/course-card-form";
 import { CourseCardInfo } from "./info/course-card-info";
@@ -15,9 +16,9 @@ const tabsInfo = [
 
 const CourseCardContent = ({ course, handleOnClose }: Props) => {
   return (
-    <div className="w-full h-full flex flex-col p-4 md:p-0 overflow-auto">
-      <Tabs defaultValue={tabsInfo[0].key} className="h-full">
-        <TabsList className="w-full rounded-3xl bg-sidebar h-14">
+    <div className="w-full h-full flex flex-col p-4 md:p-0">
+      <Tabs defaultValue={tabsInfo[0].key} className="w-full h-full">
+        <TabsList className="grid w-full grid-cols-3 rounded-3xl bg-sidebar h-14">
           {tabsInfo.map((item) => (
             <TabsTrigger
               key={item.key}
@@ -29,7 +30,9 @@ const CourseCardContent = ({ course, handleOnClose }: Props) => {
           ))}
         </TabsList>
         <TabsContent value="info">
-          <CourseCardInfo course={course} />
+          <ScrollArea className="overflow-y-auto h-full max-h-80">
+            <CourseCardInfo course={course} />
+          </ScrollArea>
         </TabsContent>
         <TabsContent value="state">
           <CourseCardForm course={course} handleOnClose={handleOnClose} />

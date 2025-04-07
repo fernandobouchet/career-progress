@@ -23,7 +23,7 @@ const CourseCardContentWrapper = ({ course, handleOnClose }: Props) => {
 
   if (isMobile) {
     return (
-      <DrawerContent>
+      <DrawerContent className="h-full">
         <DrawerDescription />
         <DrawerHeader className="text-left">
           <DrawerTitle>{course.name}</DrawerTitle>
@@ -39,7 +39,7 @@ const CourseCardContentWrapper = ({ course, handleOnClose }: Props) => {
   }
 
   return (
-    <DialogContent className="sm:max-w-2xl min-h-3/5 flex flex-col rounded-3xl">
+    <DialogContent className="sm:max-w-2xl h-[30rem] flex flex-col rounded-3xl">
       <DialogDescription />
       <DialogHeader>
         <DialogTitle>{course.name}</DialogTitle>

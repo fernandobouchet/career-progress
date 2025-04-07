@@ -3,7 +3,6 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from "@/components/ui/form";
 import {
   Select,
@@ -42,7 +41,6 @@ const CourseCardFormStatus = ({ form }: Props) => {
               <SelectItem value="REGULARIZADA">Regularizada</SelectItem>
             </SelectContent>
           </Select>
-          <FormMessage />
         </FormItem>
       )}
     />

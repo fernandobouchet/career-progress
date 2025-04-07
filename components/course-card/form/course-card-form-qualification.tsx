@@ -3,7 +3,6 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from "@/components/ui/form";
 import {
   Select,
@@ -30,7 +29,9 @@ const CourseCardFormQualification = ({ form }: Props) => {
             disabled={form.watch("status") !== "APROBADA"}
             onValueChange={field.onChange}
             defaultValue={
-              typeof field.value !== "number" ? "-" : field.value.toString()
+              typeof field.value !== "number"
+                ? undefined
+                : field.value.toString()
             }
           >
             <FormControl className="border-none bg-accent hover:bg-accent/80 [&>span]:mx-auto w-24">
@@ -50,7 +51,6 @@ const CourseCardFormQualification = ({ form }: Props) => {
               ))}
             </SelectContent>
           </Select>
-          <FormMessage />
         </FormItem>
       )}
     />

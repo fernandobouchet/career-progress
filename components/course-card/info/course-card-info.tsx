@@ -19,17 +19,20 @@ const CourseCardInfo = ({ course }: Props) => {
           {getFullArea(course.area)}
         </p>
       </div>
+
       <div className="flex flex-col">
         <div className="flex justify-between items-center">
           <h3 className="font-medium">Contenidos mínimos</h3>
         </div>
+
         <div
-          className={`text-sm text-muted-foreground overflow-hidden transition-all duration-500 ease-in-out ${
-            expanded ? "max-h-96" : "max-h-10"
-          }`}
+          className={`text-sm text-muted-foreground transition-all duration-300 ease-in-out ${
+            expanded ? "max-h-96" : "max-h-12"
+          } overflow-hidden`}
         >
-          <p>{course.info}</p>
+          <p className={!expanded ? "line-clamp-2" : ""}>{course.info}</p>
         </div>
+
         <Button
           variant="ghost"
           className="ml-auto cursor-pointer"
@@ -38,6 +41,7 @@ const CourseCardInfo = ({ course }: Props) => {
           {expanded ? "Mostrar menos" : "Mostrar más"}
         </Button>
       </div>
+
       <div className="space-y-2">
         <h3 className="font-medium">Carga horaria</h3>
         <div className="flex justify-around gap-4">
