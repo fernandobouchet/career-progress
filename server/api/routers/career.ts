@@ -16,7 +16,20 @@ export const careerRouter = createTRPCRouter({
             with: {
               courses: {
                 with: {
-                  course: true,
+                  course: {
+                    with: {
+                      correlatives: {
+                        with: {
+                          requiredCourse: {
+                            columns: {
+                              id: true,
+                              name: true,
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
                 },
               },
             },
@@ -28,6 +41,7 @@ export const careerRouter = createTRPCRouter({
 
       return career;
     }),
+
   getById: publicProcedure
     .input(z.object({ id: z.number() }))
     .query(async ({ input: { id }, ctx }) => {

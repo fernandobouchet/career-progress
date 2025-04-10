@@ -22,7 +22,20 @@ async function getCareerBySlug(slug: string) {
         with: {
           courses: {
             with: {
-              course: true,
+              course: {
+                with: {
+                  correlatives: {
+                    with: {
+                      requiredCourse: {
+                        columns: {
+                          id: true,
+                          name: true,
+                        },
+                      },
+                    },
+                  },
+                },
+              },
             },
           },
         },

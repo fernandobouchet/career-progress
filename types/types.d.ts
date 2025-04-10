@@ -46,6 +46,14 @@ type Course = {
   isPlaceholder: boolean;
   parentOptionId: number | null;
   progress?: UserStatus;
+  correlatives?: CourseIdAndName[];
+};
+
+type CourseIdAndName = {
+  requiredCourse: {
+    id: number;
+    name: string;
+  };
 };
 
 type UserStatus = {

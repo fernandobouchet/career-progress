@@ -15,6 +15,7 @@ const tabsInfo = [
 ];
 
 const CourseCardContent = ({ course, handleOnClose }: Props) => {
+  console.log(course);
   return (
     <div className="w-full h-full flex flex-col p-4 md:p-0">
       <Tabs defaultValue={tabsInfo[0].key} className="w-full h-full">

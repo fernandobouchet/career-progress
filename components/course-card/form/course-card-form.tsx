@@ -80,7 +80,7 @@ const CourseCardForm = ({ course, handleOnClose }: Props) => {
         )}
 
         <Button
-          className="ml-auto"
+          className="ml-auto cursor-pointer"
           type="submit"
           disabled={!form.formState.isDirty}
         >

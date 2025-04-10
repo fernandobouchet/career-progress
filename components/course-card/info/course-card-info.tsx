@@ -1,7 +1,8 @@
 "use client";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getFullArea } from "@/lib/functions";
-import { Clock } from "lucide-react";
+import { ArrowRight, BookmarkIcon, Clock, FileText } from "lucide-react";
 import { useState } from "react";
 
 interface Props {
@@ -13,16 +14,17 @@ const CourseCardInfo = ({ course }: Props) => {
 
   return (
     <div className="flex flex-col gap-2 p-4">
-      <div>
-        <h3 className="font-medium">Área</h3>
-        <p className="text-sm text-muted-foreground">
-          {getFullArea(course.area)}
-        </p>
+      <div className="flex justify-between py-2">
+        <div className="flex items-center gap-2">
+          <BookmarkIcon className="h-4 w-4 text-muted-foreground" />
+          <h3 className="text-sm">Área</h3>
+        </div>
+        <Badge>{getFullArea(course.area)}</Badge>
       </div>
-
-      <div className="flex flex-col">
-        <div className="flex justify-between items-center">
-          <h3 className="font-medium">Contenidos mínimos</h3>
+      <div className="flex flex-col py-2 gap-2">
+        <div className="flex items-center gap-2">
+          <FileText className="h-4 w-4 text-muted-foreground" />
+          <h3 className="text-sm">Contenidos mínimos</h3>
         </div>
 
         <div
@@ -41,29 +43,37 @@ const CourseCardInfo = ({ course }: Props) => {
           {expanded ? "Mostrar menos" : "Mostrar más"}
         </Button>
       </div>
-
-      <div className="space-y-2">
-        <h3 className="font-medium">Carga horaria</h3>
-        <div className="flex justify-around gap-4">
-          <div className="rounded-lg border p-3 flex flex-col items-center w-1/2">
-            <div className="text-sm text-muted-foreground">
-              Horas por semana
-            </div>
-            <div className="mt-1 flex items-center gap-2">
-              <Clock className="h-4 w-4 text-muted-foreground" />
-              <span className="text-lg font-semibold">{course.hsWeekly}</span>
-            </div>
-          </div>
-
-          <div className="rounded-lg border p-3 flex flex-col items-center w-1/2">
-            <div className="text-sm text-muted-foreground">Horas totales</div>
-            <div className="mt-1 flex items-center gap-2">
-              <Clock className="h-4 w-4 text-muted-foreground" />
-              <span className="text-lg font-semibold">{course.hsTotal}</span>
-            </div>
-          </div>
+      <div className="flex items-center justify-between py-2">
+        <div className="flex items-center gap-2">
+          <Clock className="h-4 w-4 text-muted-foreground" />
+          <h3 className="text-sm">Carga horaria</h3>
+        </div>
+        <div className="flex items-center gap-3">
+          <Badge variant="outline" className="rounded-full py-1 px-3">
+            {course.hsWeekly} hs/semana
+          </Badge>
+          <Badge>{course.hsTotal} totales</Badge>
         </div>
       </div>
+      {course.correlatives && course.correlatives.length > 0 && (
+        <div className="pt-2">
+          <div className="flex items-center gap-2 mb-2">
+            <ArrowRight className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm">Correlativas</span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {course.correlatives.map((correlative) => (
+              <Badge
+                key={correlative.requiredCourse.id}
+                variant="outline"
+                className={`rounded-full py-1 px-3 border-$`}
+              >
+                {correlative.requiredCourse.name}
+              </Badge>
+            ))}
+          </div>
+        </div>
+      )}{" "}
     </div>
   );
 };
