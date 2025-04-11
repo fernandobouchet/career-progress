@@ -5,12 +5,13 @@ import {
   boolean,
   timestamp,
   primaryKey,
+  unique,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import type { AdapterAccountType } from "next-auth/adapters";
-import { rolesEnum } from "./enums";
-import { usersCourses } from "./course";
-import { usersCareers } from "./career";
+import { coursesStatusEnum, rolesEnum } from "./enums";
+import { courses } from "./course";
+import { careers } from "./career";
 import { usersActivities } from "./activity";
 import { courseReviews, reviewsReports } from "./review";
 
@@ -59,6 +60,58 @@ export const sessions = pgTable("session", {
     .references(() => users.id, { onDelete: "cascade" }),
   expires: timestamp("expires", { mode: "date" }).notNull(),
 });
+
+export const usersCareers = pgTable(
+  "user_career",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    careerId: integer("career_id")
+      .notNull()
+      .references(() => careers.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+  },
+  (table) => [unique().on(table.careerId, table.userId)]
+);
+
+export const usersCourses = pgTable(
+  "user_course",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    courseId: integer("course_id")
+      .notNull()
+      .references(() => courses.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    qualification: integer("qualification"),
+    status: coursesStatusEnum("status").default("PENDIENTE").notNull(),
+    approvedDate: timestamp("approved_date"),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [unique().on(table.courseId, table.userId)]
+);
+
+export const usersCareersRelations = relations(usersCareers, ({ one }) => ({
+  career: one(careers, {
+    fields: [usersCareers.careerId],
+    references: [careers.id],
+  }),
+  user: one(users, { fields: [usersCareers.userId], references: [users.id] }),
+}));
+
+export const usersCoursesRelations = relations(usersCourses, ({ one }) => ({
+  course: one(courses, {
+    fields: [usersCourses.courseId],
+    references: [courses.id],
+  }),
+  user: one(users, { fields: [usersCourses.userId], references: [users.id] }),
+}));
 
 export const userRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),

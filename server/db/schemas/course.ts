@@ -4,14 +4,11 @@ import {
   text,
   integer,
   boolean,
-  timestamp,
   unique,
-  AnyPgColumn,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-import { coursesStatusEnum } from "./enums";
-import { users } from "./user";
-import { careersCourses, correlatives, equivalents, optatives } from "./career";
+import { usersCourses } from "./user";
+import { careers, careersCourses, periods } from "./career";
 import { activities } from "./activity";
 import { courseReviews } from "./review";
 
@@ -25,51 +22,134 @@ export const courses = pgTable("course", {
   hsTotal: integer("hs_total"),
   code: text("code"),
   isPlaceholder: boolean("is_placeholder").default(false).notNull(),
-  parentOptionId: integer("parent_option_id").references(
-    (): AnyPgColumn => courses.id
-  ),
 });
 
-export const usersCourses = pgTable(
-  "user_course",
+export const correlatives = pgTable(
+  "correlative",
   {
     id: text("id")
       .primaryKey()
       .$defaultFn(() => crypto.randomUUID()),
+    careerId: integer("career_id")
+      .notNull()
+      .references(() => careers.id, { onDelete: "cascade" }),
     courseId: integer("course_id")
       .notNull()
       .references(() => courses.id, { onDelete: "cascade" }),
-    userId: text("user_id")
+    requiredCourseId: integer("required_course_id")
       .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    qualification: integer("qualification"),
-    status: coursesStatusEnum("status").default("PENDIENTE").notNull(),
-    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+      .references(() => courses.id, { onDelete: "cascade" }),
   },
-  (table) => [unique().on(table.courseId, table.userId)]
+  (table) => [
+    unique().on(table.careerId, table.courseId, table.requiredCourseId),
+  ]
 );
-export const coursesRelations = relations(courses, ({ many, one }) => ({
-  careers: many(careersCourses),
-  correlatives: many(correlatives, { relationName: "courseCorrelatives" }),
-  requiredBy: many(correlatives, { relationName: "requiredCourses" }),
-  optatives: many(optatives, { relationName: "optativeCourses" }),
-  optativeOptions: many(optatives, { relationName: "optionCourses" }),
-  progress: many(usersCourses),
-  baseEquivs: many(equivalents, { relationName: "baseCourses" }),
-  targetEquivs: many(equivalents, { relationName: "targetCourses" }),
-  parentOption: one(courses, {
-    fields: [courses.parentOptionId],
-    references: [courses.id],
+
+export const optatives = pgTable(
+  "optative",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    careerId: integer("career_id")
+      .notNull()
+      .references(() => careers.id, { onDelete: "cascade" }),
+    courseId: integer("course_id")
+      .notNull()
+      .references(() => courses.id, { onDelete: "cascade" }),
+    periodId: integer("period_id").references(() => periods.id, {
+      onDelete: "cascade",
+    }),
+    optionCourseId: integer("option_course_id")
+      .notNull()
+      .references(() => courses.id, { onDelete: "cascade" }),
+  },
+  (table) => [unique().on(table.careerId, table.courseId, table.optionCourseId)]
+);
+
+export const courseEquivalenceGroups = pgTable("course_equivalence_group", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  careerId: integer("career_id")
+    .notNull()
+    .references(() => careers.id, { onDelete: "cascade" }),
+});
+
+export const equivalents = pgTable("equivalent", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  groupId: text("group_id")
+    .notNull()
+    .references(() => courseEquivalenceGroups.id, { onDelete: "cascade" }),
+  courseId: integer("course_id")
+    .notNull()
+    .references(() => courses.id, { onDelete: "cascade" }),
+  role: text("role", { enum: ["base", "target"] }).notNull(),
+});
+
+export const correlativesRelations = relations(correlatives, ({ one }) => ({
+  career: one(careers, {
+    fields: [correlatives.careerId],
+    references: [careers.id],
   }),
-  options: many(courses),
-  activities: many(activities),
-  reviews: many(courseReviews),
+  course: one(courses, {
+    fields: [correlatives.courseId],
+    references: [courses.id],
+    relationName: "courseCorrelatives",
+  }),
+  requiredCourse: one(courses, {
+    fields: [correlatives.requiredCourseId],
+    references: [courses.id],
+    relationName: "requiredCourses",
+  }),
 }));
 
-export const usersCoursesRelations = relations(usersCourses, ({ one }) => ({
+export const optativesRelations = relations(optatives, ({ one }) => ({
+  career: one(careers, {
+    fields: [optatives.careerId],
+    references: [careers.id],
+  }),
   course: one(courses, {
-    fields: [usersCourses.courseId],
+    fields: [optatives.courseId],
+    references: [courses.id],
+    relationName: "optativeCourses",
+  }),
+  period: one(periods, {
+    fields: [optatives.periodId],
+    references: [periods.id],
+  }),
+}));
+
+export const courseEquivalenceGroupsRelations = relations(
+  courseEquivalenceGroups,
+  ({ one, many }) => ({
+    career: one(careers, {
+      fields: [courseEquivalenceGroups.careerId],
+      references: [careers.id],
+    }),
+    equivalents: many(equivalents),
+  })
+);
+
+export const equivalentsRelations = relations(equivalents, ({ one }) => ({
+  group: one(courseEquivalenceGroups, {
+    fields: [equivalents.groupId],
+    references: [courseEquivalenceGroups.id],
+  }),
+  course: one(courses, {
+    fields: [equivalents.courseId],
     references: [courses.id],
   }),
-  user: one(users, { fields: [usersCourses.userId], references: [users.id] }),
+}));
+
+export const coursesRelations = relations(courses, ({ many }) => ({
+  careers: many(careersCourses),
+  correlatives: many(correlatives, { relationName: "courseCorrelatives" }),
+  optatives: many(optatives, { relationName: "optativeCourses" }),
+  equivalents: many(equivalents),
+  progress: many(usersCourses),
+  activities: many(activities),
+  reviews: many(courseReviews),
 }));
