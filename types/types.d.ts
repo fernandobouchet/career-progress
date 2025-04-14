@@ -44,7 +44,6 @@ type Course = {
   hsTotal: number | null;
   code: string | null;
   isPlaceholder: boolean;
-  parentOptionId: number | null;
   progress?: UserStatus;
   correlatives?: CourseIdAndName[];
 };
