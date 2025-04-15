@@ -52,24 +52,16 @@ export const careersCoursesSeed = [
   { id: crypto.randomUUID(), careerId: 1, courseId: 42, periodId: 5 },
   { id: crypto.randomUUID(), careerId: 1, courseId: 43, periodId: 5 },
 
-  // Optativas/Electivas específicas (sin período fijo) Licenciatura en Informática
-  { id: crypto.randomUUID(), careerId: 1, courseId: 44, periodId: null },
-  { id: crypto.randomUUID(), careerId: 1, courseId: 45, periodId: null },
-  { id: crypto.randomUUID(), careerId: 1, courseId: 46, periodId: null },
-  { id: crypto.randomUUID(), careerId: 1, courseId: 47, periodId: null },
-  { id: crypto.randomUUID(), careerId: 1, courseId: 48, periodId: null },
-  { id: crypto.randomUUID(), careerId: 1, courseId: 49, periodId: null },
-
-  // 1er Cuatrimestre
-  { id: crypto.randomUUID(), careerId: 2, courseId: 101, periodId: 12 }, // Matemática para Informática I
-  { id: crypto.randomUUID(), careerId: 2, courseId: 102, periodId: 12 }, // Introducción a Lógica y Problemas Computacionales
-  { id: crypto.randomUUID(), careerId: 2, courseId: 103, periodId: 12 }, // Organización de Computadoras I
+  // 1er Cuatrimestre Tecnicatura en Programación
+  { id: crypto.randomUUID(), careerId: 2, courseId: 300, periodId: 12 }, // Matemática para Informática I
+  { id: crypto.randomUUID(), careerId: 2, courseId: 301, periodId: 12 }, // Introducción a Lógica y Problemas Computacionales
+  { id: crypto.randomUUID(), careerId: 2, courseId: 302, periodId: 12 }, // Organización de Computadoras I
   { id: crypto.randomUUID(), careerId: 2, courseId: 4, periodId: 12 }, // Nuevos Entornos y Lenguajes (Lic)
 
   // 2do Cuatrimestre
-  { id: crypto.randomUUID(), careerId: 2, courseId: 104, periodId: 13 }, // Taller de Lenguajes de Marcado y Tecnologías Web (Correlativa: 102)
-  { id: crypto.randomUUID(), careerId: 2, courseId: 105, periodId: 13 }, // Programación Estructurada (Correlativa: 102)
-  { id: crypto.randomUUID(), careerId: 2, courseId: 106, periodId: 13 }, // Matemática para Informática II (Correlativa: 101)
+  { id: crypto.randomUUID(), careerId: 2, courseId: 400, periodId: 13 }, // Taller de Lenguajes de Marcado y Tecnologías Web (Correlativa: 102)
+  { id: crypto.randomUUID(), careerId: 2, courseId: 303, periodId: 13 }, // Programación Estructurada (Correlativa: 102)
+  { id: crypto.randomUUID(), careerId: 2, courseId: 304, periodId: 13 }, // Matemática para Informática II (Correlativa: 101)
   { id: crypto.randomUUID(), careerId: 2, courseId: 8, periodId: 13 }, // Inglés I (Lic)
 
   // 3er Cuatrimestre
@@ -78,7 +70,7 @@ export const careersCoursesSeed = [
   { id: crypto.randomUUID(), careerId: 2, courseId: 5, periodId: 14 }, // Estructuras de Datos (Lic) (Correlativa: 105)
 
   // 4to Cuatrimestre
-  { id: crypto.randomUUID(), careerId: 2, courseId: 107, periodId: 15 }, // Materia UNAHUR
+  { id: crypto.randomUUID(), careerId: 2, courseId: 22, periodId: 15 }, // Materia UNAHUR
   { id: crypto.randomUUID(), careerId: 2, courseId: 10, periodId: 15 }, // Programación con Objetos II (Lic) (Correlativa: 8)
   { id: crypto.randomUUID(), careerId: 2, courseId: 13, periodId: 15 }, // Programación Funcional (Lic, Electiva I) (Correlativas: 105, 9)
   { id: crypto.randomUUID(), careerId: 2, courseId: 11, periodId: 15 }, // Redes de Computadoras (Correlativa: 103)

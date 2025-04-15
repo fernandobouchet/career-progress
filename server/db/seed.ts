@@ -6,6 +6,7 @@ import { periodsSeed } from "./seeds/periods";
 import { sql } from "drizzle-orm";
 import { coursesSeed } from "./seeds/courses";
 import { careersCoursesSeed } from "./seeds/career_courses";
+import { correlativesSeed } from "./seeds/correlatives";
 
 export const db = drizzle(process.env.DATABASE_URL!, { schema });
 
@@ -14,6 +15,7 @@ async function seed() {
     await db.delete(schema.careers);
     await db.delete(schema.periods);
     await db.delete(schema.courses);
+    await db.delete(schema.correlatives);
     await db.delete(schema.careersCourses);
     console.log("Insertando/Actualizando carreras...");
     await db
@@ -54,6 +56,9 @@ async function seed() {
           hsTotal: sql`EXCLUDED.hs_total`,
         },
       });
+
+    console.log("Insertando/Actualizando correlatividades...");
+    await db.insert(schema.correlatives).values(correlativesSeed);
 
     console.log("Insertando/Actualizando relaciones carreras-cursos...");
     await db
