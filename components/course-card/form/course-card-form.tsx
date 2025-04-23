@@ -9,6 +9,7 @@ import { CourseCardFormStatus } from "./course-card-form-status";
 import { statusKeys } from "@/types/constants";
 import { useUserData } from "@/context/user-data-context";
 import { CourseCardFormQualification } from "./course-card-form-qualification";
+import { CourseCardWarning } from "./course-card-warning";
 
 const formSchema = z
   .object({
@@ -38,7 +39,7 @@ interface Props {
 }
 
 const CourseCardForm = ({ course, handleOnClose }: Props) => {
-  const { updateCourseStatus } = useUserData();
+  const { updateCourseStatus, areCourseCorrelativesPassed } = useUserData();
 
   const form = useForm<z.infer<typeof formSchema>>({
     mode: "onChange",
@@ -54,6 +55,10 @@ const CourseCardForm = ({ course, handleOnClose }: Props) => {
     handleOnClose();
   }
 
+  if (!areCourseCorrelativesPassed(course)) {
+    return <CourseCardWarning course={course} />;
+  }
+
   return (
     <Form {...form}>
       <form
@@ -61,7 +66,7 @@ const CourseCardForm = ({ course, handleOnClose }: Props) => {
         className="h-full flex flex-col justify-between p-4"
       >
         <h3 className="font-medium">
-          Modifica el estado y/o la calificación de la materia.
+          Modifica el estado y/o la calificación de la asignatura.
         </h3>
         <div className="w-full flex justify-evenly">
           <CourseCardFormStatus form={form} />

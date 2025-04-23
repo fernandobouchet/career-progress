@@ -1,6 +1,7 @@
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { usersCourses } from "@/server/db/schema";
 import { statusKeys } from "@/types/constants";
+import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 
@@ -38,6 +39,42 @@ export const userRouter = createTRPCRouter({
         where: (uc, { and, eq }) =>
           and(eq(uc.userId, user.id), eq(uc.courseId, courseId)),
       });
+
+      // Validamos si la materia tiene aprobadas o regularizadas las equivalencias
+      if (status !== "PENDIENTE") {
+        const correlatives = await ctx.db.query.correlatives.findMany({
+          where: (c, { eq }) => eq(c.courseId, courseId),
+        });
+
+        if (correlatives.length > 0) {
+          const userCorrelatives = await ctx.db.query.usersCourses.findMany({
+            where: (uc, { and, eq, inArray }) =>
+              and(
+                eq(uc.userId, user.id),
+                inArray(
+                  uc.courseId,
+                  correlatives.map((c) => c.requiredCourseId)
+                )
+              ),
+          });
+
+          const allCorrelativesPassed = correlatives.every((correlative) =>
+            userCorrelatives.some(
+              (uc) =>
+                uc.courseId === correlative.requiredCourseId &&
+                (uc.status === "APROBADA" || uc.status === "REGULARIZADA")
+            )
+          );
+
+          if (!allCorrelativesPassed) {
+            throw new TRPCError({
+              code: "FORBIDDEN",
+              message:
+                "No puedes cambiar el estado de esta materia porque no tenés todas las correlativas aprobadas o regularizadas.",
+            });
+          }
+        }
+      }
 
       if (status === "PENDIENTE") {
         if (userCourse) {

@@ -16,6 +16,8 @@ type UserDataContextType = {
     status: keyof typeof StatusEnum,
     qualification?: number | null
   ) => void;
+  areCourseCorrelativesPassed: (course: Course) => boolean;
+  getUnmetCorrelatives: (course: Course) => CourseIdAndName[];
   isLoading: boolean;
   isSaving: boolean;
 };
@@ -123,11 +125,57 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
     updateUserCoursesMutation.mutate({ courseId, status, qualification });
   };
 
+  const areCourseCorrelativesPassed = (course: Course) => {
+    return (
+      course.correlatives?.every((correlative) => {
+        const progress = userProgress.find(
+          (userCourse) => userCourse?.courseId === correlative.requiredCourse.id
+        );
+
+        return (
+          progress?.status === "APROBADA" || progress?.status === "REGULARIZADA"
+        );
+      }) ?? true
+    );
+  };
+
+  const getUnmetCorrelatives = (course: Course) => {
+    const courseCorrelatives = course.correlatives;
+    const unmetCorrelatives: CourseIdAndName[] = [];
+
+    if (!courseCorrelatives || courseCorrelatives.length === 0) {
+      return unmetCorrelatives;
+    }
+
+    for (const correlative of courseCorrelatives) {
+      const requiredCourse = correlative.requiredCourse;
+      const progress = userProgress.find(
+        (userCourse) => userCourse?.courseId === requiredCourse.id
+      );
+
+      const isPassed =
+        progress?.status === "APROBADA" || progress?.status === "REGULARIZADA";
+
+      if (!isPassed) {
+        unmetCorrelatives.push({
+          requiredCourse: {
+            id: requiredCourse.id,
+            name: requiredCourse.name,
+          },
+        });
+      }
+    }
+
+    return unmetCorrelatives;
+  };
+
   return (
     <UserDataContext.Provider
       value={{
         userProgress,
         updateCourseStatus,
+        areCourseCorrelativesPassed,
+        getUnmetCorrelatives,
         isLoading: isLoadingCourses,
         isSaving: updateUserCoursesMutation.isPending,
       }}
