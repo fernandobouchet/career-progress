@@ -13,7 +13,7 @@ const CourseCardInfo = ({ course }: Props) => {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="flex flex-col gap-2 p-4">
+    <div className="h-full flex flex-col justify-between p-4">
       <div className="flex justify-between py-2">
         <div className="flex items-center gap-2">
           <BookmarkIcon className="h-4 w-4 text-muted-foreground" />
@@ -73,7 +73,7 @@ const CourseCardInfo = ({ course }: Props) => {
             ))}
           </div>
         </div>
-      )}{" "}
+      )}
     </div>
   );
 };

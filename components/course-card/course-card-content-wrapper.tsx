@@ -31,7 +31,7 @@ const CourseCardContentWrapper = ({ course, handleOnClose }: Props) => {
         <CourseCardContent course={course} handleOnClose={handleOnClose} />
         <DrawerFooter className="pt-2">
           <Button variant="outline" onClick={handleOnClose}>
-            Cancel
+            Cancelar
           </Button>
         </DrawerFooter>
       </DrawerContent>

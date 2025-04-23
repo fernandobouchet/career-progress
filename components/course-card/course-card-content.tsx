@@ -2,6 +2,7 @@ import { ScrollArea } from "../ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { CourseCardForm } from "./form/course-card-form";
 import { CourseCardInfo } from "./info/course-card-info";
+import { CourseOptativeForm } from "./optative-form/course-optative-form";
 
 interface Props {
   course: Course;
@@ -15,7 +16,9 @@ const tabsInfo = [
 ];
 
 const CourseCardContent = ({ course, handleOnClose }: Props) => {
-  console.log(course);
+  if (course.isPlaceholder && course.optatives)
+    return <CourseOptativeForm course={course} />;
+
   return (
     <div className="w-full h-full flex flex-col p-4 md:p-0">
       <Tabs defaultValue={tabsInfo[0].key} className="w-full h-full">
@@ -30,7 +33,7 @@ const CourseCardContent = ({ course, handleOnClose }: Props) => {
             </TabsTrigger>
           ))}
         </TabsList>
-        <TabsContent value="info">
+        <TabsContent className="" value="info">
           <ScrollArea className="overflow-y-auto h-full max-h-80">
             <CourseCardInfo course={course} />
           </ScrollArea>
