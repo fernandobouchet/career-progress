@@ -8,7 +8,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { usersCourses } from "./user";
-import { careers, careersCourses, periods } from "./career";
+import { careers, careersCourses } from "./career";
 import { activities } from "./activity";
 import { courseReviews } from "./review";
 
@@ -57,9 +57,6 @@ export const optatives = pgTable(
     courseId: integer("course_id")
       .notNull()
       .references(() => courses.id, { onDelete: "cascade" }),
-    periodId: integer("period_id").references(() => periods.id, {
-      onDelete: "cascade",
-    }),
     optionCourseId: integer("option_course_id")
       .notNull()
       .references(() => courses.id, { onDelete: "cascade" }),
@@ -116,9 +113,10 @@ export const optativesRelations = relations(optatives, ({ one }) => ({
     references: [courses.id],
     relationName: "optativeCourses",
   }),
-  period: one(periods, {
-    fields: [optatives.periodId],
-    references: [periods.id],
+  optionCourseId: one(courses, {
+    fields: [optatives.optionCourseId],
+    references: [courses.id],
+    relationName: "optionCourses",
   }),
 }));
 
