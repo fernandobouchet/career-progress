@@ -1,4 +1,4 @@
-export const correlativesSeed = [
+export const licenciaturaInformaticaCourseCorrelativesSeed = [
   // Licenciatura en Informática
 
   // Estructuras de Datos (5) → Introducción a la Programación (2)

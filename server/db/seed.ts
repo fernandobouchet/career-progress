@@ -4,9 +4,11 @@ import * as schema from "./schema";
 import { careersSeed } from "./seeds/careers";
 import { periodsSeed } from "./seeds/periods";
 import { sql } from "drizzle-orm";
-import { coursesSeed } from "./seeds/courses";
-import { careersCoursesSeed } from "./seeds/career_courses";
-import { correlativesSeed } from "./seeds/correlatives";
+import { coursesSeed } from "./seeds/shared/courses";
+import { licenciaturaInformaticaCourseCorrelativesSeed } from "./seeds/careers/licenciatura-informatica/course-correlatives";
+import { licenciaturaInformaticaCourseOptativesSeed } from "./seeds/careers/licenciatura-informatica/course-optatives";
+import { licenciaturaInformaticaPeriodCoursesSeed } from "./seeds/careers/licenciatura-informatica/career-periods-courses";
+import { tecnicaturaProgramacionPeriodCoursesSeed } from "./seeds/careers/tecnicatura-programacion/career-periods-courses";
 
 export const db = drizzle(process.env.DATABASE_URL!, { schema });
 
@@ -15,8 +17,9 @@ async function seed() {
     await db.delete(schema.careers);
     await db.delete(schema.periods);
     await db.delete(schema.courses);
-    await db.delete(schema.correlatives);
     await db.delete(schema.careersCourses);
+    await db.delete(schema.correlatives);
+    await db.delete(schema.optatives);
     console.log("Insertando/Actualizando carreras...");
     await db
       .insert(schema.careers)
@@ -57,13 +60,15 @@ async function seed() {
         },
       });
 
-    console.log("Insertando/Actualizando correlatividades...");
-    await db.insert(schema.correlatives).values(correlativesSeed);
-
-    console.log("Insertando/Actualizando relaciones carreras-cursos...");
+    console.log(
+      "Insertando/Actualizando cursos en los periodos de las carreras..."
+    );
     await db
       .insert(schema.careersCourses)
-      .values(careersCoursesSeed)
+      .values([
+        ...licenciaturaInformaticaPeriodCoursesSeed,
+        ...tecnicaturaProgramacionPeriodCoursesSeed,
+      ])
       .onConflictDoUpdate({
         target: schema.careersCourses.id,
         set: {
@@ -72,6 +77,16 @@ async function seed() {
           periodId: sql`EXCLUDED.period_id`,
         },
       });
+
+    console.log("Insertando/Actualizando correlatividades...");
+    await db
+      .insert(schema.correlatives)
+      .values(licenciaturaInformaticaCourseCorrelativesSeed);
+
+    console.log("Insertando/Actualizando optativas...");
+    await db
+      .insert(schema.optatives)
+      .values(licenciaturaInformaticaCourseOptativesSeed);
 
     console.log("Seeds insertados/actualizados correctamente!");
   } catch (error) {
