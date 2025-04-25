@@ -51,7 +51,12 @@ const CourseCardForm = ({ course, handleOnClose }: Props) => {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    updateCourseStatus(course.id, values.status, values.qualification);
+    updateCourseStatus({
+      courseId: course.id,
+      placeholderCourseId: course.progress?.placeholderCourseId ?? null,
+      status: values.status,
+      qualification: values.qualification,
+    });
     handleOnClose();
   }
 

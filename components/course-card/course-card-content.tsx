@@ -12,7 +12,7 @@ interface Props {
 const tabsInfo = [
   { key: "info", title: "Información" },
   { key: "state", title: "Estado" },
-  { key: "reviews", title: "Valoraciones" },
+  /*{ key: "reviews", title: "Valoraciones" },*/
 ];
 
 const CourseCardContent = ({ course, handleOnClose }: Props) => {
@@ -22,7 +22,7 @@ const CourseCardContent = ({ course, handleOnClose }: Props) => {
   return (
     <div className="w-full h-full flex flex-col p-4 md:p-0">
       <Tabs defaultValue={tabsInfo[0].key} className="w-full h-full">
-        <TabsList className="grid w-full grid-cols-3 rounded-3xl bg-sidebar h-14">
+        <TabsList className="grid w-full grid-cols-2 rounded-3xl bg-sidebar h-14">
           {tabsInfo.map((item) => (
             <TabsTrigger
               key={item.key}
@@ -33,17 +33,18 @@ const CourseCardContent = ({ course, handleOnClose }: Props) => {
             </TabsTrigger>
           ))}
         </TabsList>
-        <TabsContent className="" value="info">
-          <ScrollArea className="overflow-y-auto h-full max-h-80">
+        <TabsContent value="info">
+          <ScrollArea type="scroll" className="h-80 [&>*>*]:h-full">
             <CourseCardInfo course={course} />
           </ScrollArea>
         </TabsContent>
         <TabsContent value="state">
           <CourseCardForm course={course} handleOnClose={handleOnClose} />
         </TabsContent>
+        {/*
         <TabsContent value="comments">
           Comentarios / consejos sobre la materia.
-        </TabsContent>
+        </TabsContent> */}
       </Tabs>
     </div>
   );
