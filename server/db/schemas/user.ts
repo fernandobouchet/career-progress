@@ -86,6 +86,10 @@ export const usersCourses = pgTable(
     courseId: integer("course_id")
       .notNull()
       .references(() => courses.id, { onDelete: "cascade" }),
+    placeholderCourseId: integer("placeholder_course_id").references(
+      () => courses.id,
+      { onDelete: "cascade" }
+    ),
     userId: text("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),

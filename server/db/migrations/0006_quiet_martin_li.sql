@@ -1,0 +1,2 @@
+ALTER TABLE "user_course" ADD COLUMN "placeholder_course_id" integer;--> statement-breakpoint
+ALTER TABLE "user_course" ADD CONSTRAINT "user_course_placeholder_course_id_course_id_fk" FOREIGN KEY ("placeholder_course_id") REFERENCES "public"."course"("id") ON DELETE cascade ON UPDATE no action;
