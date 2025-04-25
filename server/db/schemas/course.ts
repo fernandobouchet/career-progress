@@ -113,7 +113,7 @@ export const optativesRelations = relations(optatives, ({ one }) => ({
     references: [courses.id],
     relationName: "optativeCourses",
   }),
-  optionCourseId: one(courses, {
+  optionCourse: one(courses, {
     fields: [optatives.optionCourseId],
     references: [courses.id],
     relationName: "optionCourses",
