@@ -34,6 +34,11 @@ async function getCareerBySlug(slug: string) {
                       },
                     },
                   },
+                  optatives: {
+                    with: {
+                      optionCourse: true,
+                    },
+                  },
                 },
               },
             },
