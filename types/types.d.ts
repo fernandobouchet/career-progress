@@ -44,25 +44,37 @@ type Course = {
   hsTotal: number | null;
   code: string | null;
   isPlaceholder: boolean;
-  progress?: UserStatus;
-  correlatives?: CourseIdAndName[];
+  progress?: UserProgressStatus;
+  correlatives?: RequiredCourse[];
+  optatives?: OptionalCourse[];
 };
 
-type CourseIdAndName = {
-  requiredCourse: {
-    id: number;
-    name: string;
-  };
+type RequiredCourse = {
+  requiredCourse: CourseIdAndName;
 };
 
-type UserStatus = {
+type OptionalCourse = {
+  optionCourse: Course;
+};
+
+type CourseIdAndName = Pick<Course, "id" | "name">;
+
+type UserProgressStatus = {
   id: string;
   userId: string;
   courseId: number;
+  placeholderCourseId: number | null;
   qualification: number | null;
   status: keyof typeof StatusEnum;
   updatedAt: Date;
 } | null;
+
+type UpdateUserProgressStatus = {
+  courseId: number;
+  placeholderCourseId: number | null;
+  qualification: number | null;
+  status: keyof typeof StatusEnum;
+};
 
 type ProgressForm = {
   status: keyof typeof StatusEnum;
