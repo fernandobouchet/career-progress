@@ -10,14 +10,15 @@ import { api } from "@/trpc/react";
 import { toast } from "sonner";
 
 type UserDataContextType = {
-  userProgress: UserStatus[];
-  updateCourseStatus: (
-    courseId: number,
-    status: keyof typeof StatusEnum,
-    qualification?: number | null
-  ) => void;
+  userProgress: UserProgressStatus[];
+  updateCourseStatus: ({
+    courseId,
+    placeholderCourseId,
+    status,
+    qualification,
+  }: UpdateUserProgressStatus) => void;
   areCourseCorrelativesPassed: (course: Course) => boolean;
-  getUnmetCorrelatives: (course: Course) => CourseIdAndName[];
+  getUnmetCorrelatives: (course: Course) => RequiredCourse[];
   isLoading: boolean;
   isSaving: boolean;
 };
@@ -27,7 +28,7 @@ const UserDataContext = createContext<UserDataContextType | undefined>(
 );
 
 export function UserDataProvider({ children }: { children: ReactNode }) {
-  const [userProgress, setUserProgress] = useState<UserStatus[]>([]);
+  const [userProgress, setUserProgress] = useState<UserProgressStatus[]>([]);
 
   const { data: initialUserCourses, isLoading: isLoadingCourses } =
     api.user.getCourseProgress.useQuery(undefined, {
@@ -37,7 +38,7 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
 
   const updateUserCoursesMutation = api.user.updateCourseProgress.useMutation({
     onMutate: async ({ courseId, status, qualification }) => {
-      const previousProgress = userProgress;
+      const previousProgress = [...userProgress];
       setUserProgress((prev) => {
         const existingCourseIndex = prev.findIndex(
           (uc) => uc && uc.courseId === courseId
@@ -52,10 +53,11 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
         }
 
         if (existingCourse) {
-          const updatedCourse: UserStatus = {
+          const updatedCourse: UserProgressStatus = {
             id: existingCourse.id,
             userId: existingCourse.userId,
             courseId: existingCourse.courseId,
+            placeholderCourseId: existingCourse.placeholderCourseId ?? null,
             status,
             qualification,
             updatedAt: new Date(),
@@ -64,10 +66,11 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
             index === existingCourseIndex ? updatedCourse : uc
           );
         } else {
-          const newCourse: UserStatus = {
-            id: "", // Placeholder, será reemplazado en onSuccess
+          const newCourse: UserProgressStatus = {
+            id: "",
             userId: "",
             courseId,
+            placeholderCourseId: null,
             status,
             qualification,
             updatedAt: new Date(),
@@ -79,24 +82,24 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
     },
     onError: (err, variables, context) => {
       setUserProgress(
-        (context as { previousProgress: UserStatus[] }).previousProgress
+        (context as { previousProgress: UserProgressStatus[] }).previousProgress
       );
       toast.error("Error al actualizar el progreso en la base de datos");
     },
     onSuccess: (data, variables) => {
       if (data?.success) {
-        setUserProgress((prev: UserStatus[]) => {
+        setUserProgress((prev: UserProgressStatus[]) => {
           const courseId = variables.courseId;
           if (data.userCourse === null) {
-            // Filtramos explícitamente para devolver UserStatus[]
+            // Filtramos explícitamente para devolver UserProgressStatus[]
             return prev.filter(
               (uc) => uc?.courseId !== courseId
-            ) as UserStatus[];
+            ) as UserProgressStatus[];
           }
           const existingCourseIndex = prev.findIndex(
             (uc) => uc?.courseId === courseId
           );
-          const updatedCourse = data.userCourse as UserStatus; // Aseguramos el tipo
+          const updatedCourse = data.userCourse as UserProgressStatus; // Aseguramos el tipo
           if (existingCourseIndex !== -1) {
             return prev.map((uc, index) =>
               index === existingCourseIndex ? updatedCourse : uc
@@ -113,16 +116,22 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (initialUserCourses) {
-      setUserProgress(initialUserCourses as UserStatus[]);
+      setUserProgress(initialUserCourses as UserProgressStatus[]);
     }
   }, [initialUserCourses]);
 
-  const updateCourseStatus = (
-    courseId: number,
-    status: keyof typeof StatusEnum,
-    qualification: number | null = null
-  ) => {
-    updateUserCoursesMutation.mutate({ courseId, status, qualification });
+  const updateCourseStatus = ({
+    courseId,
+    placeholderCourseId,
+    status,
+    qualification,
+  }: UpdateUserProgressStatus) => {
+    updateUserCoursesMutation.mutate({
+      courseId,
+      placeholderCourseId,
+      status,
+      qualification,
+    });
   };
 
   const areCourseCorrelativesPassed = (course: Course) => {
@@ -141,7 +150,7 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
 
   const getUnmetCorrelatives = (course: Course) => {
     const courseCorrelatives = course.correlatives;
-    const unmetCorrelatives: CourseIdAndName[] = [];
+    const unmetCorrelatives: RequiredCourse[] = [];
 
     if (!courseCorrelatives || courseCorrelatives.length === 0) {
       return unmetCorrelatives;
