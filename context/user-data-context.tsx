@@ -1,22 +1,21 @@
 "use client";
+
 import {
   createContext,
   useContext,
   useState,
   useEffect,
   ReactNode,
+  useMemo,
+  useCallback,
 } from "react";
 import { api } from "@/trpc/react";
 import { toast } from "sonner";
+import { useUserProgressMap } from "@/hooks/use-user-progress-map";
 
 type UserDataContextType = {
   userProgress: UserProgressStatus[];
-  updateCourseStatus: ({
-    courseId,
-    placeholderCourseId,
-    status,
-    qualification,
-  }: UpdateUserProgressStatus) => void;
+  updateCourseStatus: (params: UpdateUserProgressStatus) => void;
   areCourseCorrelativesPassed: (course: Course) => boolean;
   getUnmetCorrelatives: (course: Course) => RequiredCourse[];
   isLoading: boolean;
@@ -54,10 +53,7 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
 
         if (existingCourse) {
           const updatedCourse: UserProgressStatus = {
-            id: existingCourse.id,
-            userId: existingCourse.userId,
-            courseId: existingCourse.courseId,
-            placeholderCourseId: existingCourse.placeholderCourseId ?? null,
+            ...existingCourse,
             status,
             qualification,
             updatedAt: new Date(),
@@ -78,7 +74,7 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
           return [...prev, newCourse];
         }
       });
-      return { previousProgress, courseId }; // Capturo courseId para usarlo en onSuccess
+      return { previousProgress, courseId };
     },
     onError: (err, variables, context) => {
       setUserProgress(
@@ -91,7 +87,6 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
         setUserProgress((prev: UserProgressStatus[]) => {
           const courseId = variables.courseId;
           if (data.userCourse === null) {
-            // Filtramos explícitamente para devolver UserProgressStatus[]
             return prev.filter(
               (uc) => uc?.courseId !== courseId
             ) as UserProgressStatus[];
@@ -99,7 +94,7 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
           const existingCourseIndex = prev.findIndex(
             (uc) => uc?.courseId === courseId
           );
-          const updatedCourse = data.userCourse as UserProgressStatus; // Aseguramos el tipo
+          const updatedCourse = data.userCourse as UserProgressStatus;
           if (existingCourseIndex !== -1) {
             return prev.map((uc, index) =>
               index === existingCourseIndex ? updatedCourse : uc
@@ -120,75 +115,93 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
     }
   }, [initialUserCourses]);
 
-  const updateCourseStatus = ({
-    courseId,
-    placeholderCourseId,
-    status,
-    qualification,
-  }: UpdateUserProgressStatus) => {
-    updateUserCoursesMutation.mutate({
+  const userProgressMap = useUserProgressMap(userProgress);
+
+  const updateCourseStatus = useCallback(
+    ({
       courseId,
       placeholderCourseId,
       status,
       qualification,
-    });
-  };
+    }: UpdateUserProgressStatus) => {
+      updateUserCoursesMutation.mutate({
+        courseId,
+        placeholderCourseId,
+        status,
+        qualification,
+      });
+    },
+    [updateUserCoursesMutation]
+  );
 
-  const areCourseCorrelativesPassed = (course: Course) => {
-    return (
-      course.correlatives?.every((correlative) => {
-        const progress = userProgress.find(
-          (userCourse) => userCourse?.courseId === correlative.requiredCourse.id
-        );
-
-        return (
-          progress?.status === "APROBADA" || progress?.status === "REGULARIZADA"
-        );
-      }) ?? true
-    );
-  };
-
-  const getUnmetCorrelatives = (course: Course) => {
-    const courseCorrelatives = course.correlatives;
-    const unmetCorrelatives: RequiredCourse[] = [];
-
-    if (!courseCorrelatives || courseCorrelatives.length === 0) {
-      return unmetCorrelatives;
-    }
-
-    for (const correlative of courseCorrelatives) {
-      const requiredCourse = correlative.requiredCourse;
-      const progress = userProgress.find(
-        (userCourse) => userCourse?.courseId === requiredCourse.id
+  const areCourseCorrelativesPassed = useCallback(
+    (course: Course) => {
+      return (
+        course.correlatives?.every((correlative) => {
+          const progress = userProgressMap.get(correlative.requiredCourse.id);
+          return (
+            progress?.status === "APROBADA" ||
+            progress?.status === "REGULARIZADA"
+          );
+        }) ?? true
       );
+    },
+    [userProgressMap]
+  );
 
-      const isPassed =
-        progress?.status === "APROBADA" || progress?.status === "REGULARIZADA";
+  const getUnmetCorrelatives = useCallback(
+    (course: Course) => {
+      const courseCorrelatives = course.correlatives;
+      const unmetCorrelatives: RequiredCourse[] = [];
 
-      if (!isPassed) {
-        unmetCorrelatives.push({
-          requiredCourse: {
-            id: requiredCourse.id,
-            name: requiredCourse.name,
-          },
-        });
+      if (!courseCorrelatives || courseCorrelatives.length === 0) {
+        return unmetCorrelatives;
       }
-    }
 
-    return unmetCorrelatives;
-  };
+      for (const correlative of courseCorrelatives) {
+        const requiredCourse = correlative.requiredCourse;
+        const progress = userProgressMap.get(requiredCourse.id);
+
+        const isPassed =
+          progress?.status === "APROBADA" ||
+          progress?.status === "REGULARIZADA";
+
+        if (!isPassed) {
+          unmetCorrelatives.push({
+            requiredCourse: {
+              id: requiredCourse.id,
+              name: requiredCourse.name,
+            },
+          });
+        }
+      }
+
+      return unmetCorrelatives;
+    },
+    [userProgressMap]
+  );
+
+  const contextValue = useMemo(
+    () => ({
+      userProgress,
+      updateCourseStatus,
+      areCourseCorrelativesPassed,
+      getUnmetCorrelatives,
+      isLoading: isLoadingCourses,
+      isSaving: updateUserCoursesMutation.isPending,
+    }),
+    [
+      userProgress,
+      updateCourseStatus,
+      areCourseCorrelativesPassed,
+      getUnmetCorrelatives,
+      isLoadingCourses,
+      updateUserCoursesMutation.isPending,
+    ]
+  );
 
   return (
-    <UserDataContext.Provider
-      value={{
-        userProgress,
-        updateCourseStatus,
-        areCourseCorrelativesPassed,
-        getUnmetCorrelatives,
-        isLoading: isLoadingCourses,
-        isSaving: updateUserCoursesMutation.isPending,
-      }}
-    >
+    <UserDataContext.Provider value={contextValue}>
       {children}
     </UserDataContext.Provider>
   );
