@@ -59,6 +59,11 @@ type OptionalCourse = {
 
 type CourseIdAndName = Pick<Course, "id" | "name">;
 
+type UpdateOptionalCourse = {
+  courseId: number;
+  placeholderCourseId: number;
+};
+
 type UserProgressStatus = {
   id: string;
   userId: string;
