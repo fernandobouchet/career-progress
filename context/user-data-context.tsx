@@ -16,6 +16,7 @@ import { useUserProgressMap } from "@/hooks/use-user-progress-map";
 type UserDataContextType = {
   userProgress: UserProgressStatus[];
   updateCourseStatus: (params: UpdateUserProgressStatus) => void;
+  updateOptionalCourse: (params: UpdateOptionalCourse) => void;
   areCourseCorrelativesPassed: (course: Course) => boolean;
   getUnmetCorrelatives: (course: Course) => RequiredCourse[];
   isLoading: boolean;
@@ -103,8 +104,87 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
             return [...prev, updatedCourse];
           }
         });
-      } else {
-        toast.error("La mutación no fue exitosa");
+      }
+    },
+  });
+
+  const updateOptionalCoursesMutation = api.user.setOptativeCourse.useMutation({
+    onMutate: async ({ courseId, placeholderCourseId }) => {
+      const previousProgress = [...userProgress];
+
+      const existingCourseIndex = previousProgress.findIndex(
+        (uc) =>
+          uc &&
+          uc.courseId !== courseId &&
+          uc.placeholderCourseId === placeholderCourseId
+      );
+
+      if (existingCourseIndex !== -1) {
+        toast.error(
+          "La asignatura optativa seleccionada ya está asignado en otra asignatura."
+        );
+        return { previousProgress, courseId };
+      }
+
+      setUserProgress((prev) => {
+        const existingCourseIndex = prev.findIndex(
+          (uc) => uc && uc.courseId === courseId
+        );
+        const existingCourse =
+          existingCourseIndex !== -1 ? prev[existingCourseIndex] : null;
+
+        if (existingCourse) {
+          const updatedCourse: UserProgressStatus = {
+            ...existingCourse,
+            placeholderCourseId: placeholderCourseId,
+            updatedAt: new Date(),
+          };
+          return prev.map((uc, index) =>
+            index === existingCourseIndex ? updatedCourse : uc
+          );
+        } else {
+          const newCourse: UserProgressStatus = {
+            id: "",
+            userId: "",
+            courseId,
+            qualification: null,
+            status: "PENDIENTE",
+            placeholderCourseId: placeholderCourseId,
+            updatedAt: new Date(),
+          };
+          return [...prev, newCourse];
+        }
+      });
+
+      return { previousProgress, courseId };
+    },
+    onError: (err, variables, context) => {
+      setUserProgress(
+        (context as { previousProgress: UserProgressStatus[] }).previousProgress
+      );
+      toast.error("Error al actualizar el progreso en la base de datos");
+    },
+    onSuccess: (data, variables) => {
+      if (data?.success) {
+        setUserProgress((prev: UserProgressStatus[]) => {
+          const courseId = variables.courseId;
+          if (data.userCourse === null) {
+            return prev.filter(
+              (uc) => uc?.courseId !== courseId
+            ) as UserProgressStatus[];
+          }
+          const existingCourseIndex = prev.findIndex(
+            (uc) => uc?.courseId === courseId
+          );
+          const updatedCourse = data.userCourse as UserProgressStatus;
+          if (existingCourseIndex !== -1) {
+            return prev.map((uc, index) =>
+              index === existingCourseIndex ? updatedCourse : uc
+            );
+          } else {
+            return [...prev, updatedCourse];
+          }
+        });
       }
     },
   });
@@ -132,6 +212,16 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
       });
     },
     [updateUserCoursesMutation]
+  );
+
+  const updateOptionalCourse = useCallback(
+    ({ courseId, placeholderCourseId }: UpdateOptionalCourse) => {
+      updateOptionalCoursesMutation.mutate({
+        courseId,
+        placeholderCourseId,
+      });
+    },
+    [updateOptionalCoursesMutation]
   );
 
   const areCourseCorrelativesPassed = useCallback(
@@ -185,6 +275,7 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
     () => ({
       userProgress,
       updateCourseStatus,
+      updateOptionalCourse,
       areCourseCorrelativesPassed,
       getUnmetCorrelatives,
       isLoading: isLoadingCourses,
@@ -193,6 +284,7 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
     [
       userProgress,
       updateCourseStatus,
+      updateOptionalCourse,
       areCourseCorrelativesPassed,
       getUnmetCorrelatives,
       isLoadingCourses,

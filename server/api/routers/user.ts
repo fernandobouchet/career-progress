@@ -16,98 +16,161 @@ export const userRouter = createTRPCRouter({
     });
     return userCourses;
   }),
-  updateCourseProgress: protectedProcedure
+  setOptativeCourse: protectedProcedure
     .input(
       z.object({
         courseId: z.number(),
-        status: z.enum(statusKeys),
-        qualification: z.number().min(4).max(10).nullable(),
+        placeholderCourseId: z.number(),
       })
     )
-    .mutation(async ({ input: { courseId, status, qualification }, ctx }) => {
+    .mutation(async ({ input: { courseId, placeholderCourseId }, ctx }) => {
       const user = ctx.session?.user;
-
-      if (!user) return null;
+      if (!user) return { success: false, error: "Usuario no autenticado." };
 
       const course = await ctx.db.query.courses.findFirst({
         where: (courses, { eq }) => eq(courses.id, courseId),
       });
 
-      if (!course) return null;
+      if (!course)
+        return { success: false, error: "Asignatura no encontrada." };
 
-      const userCourse = await ctx.db.query.usersCourses.findFirst({
-        where: (uc, { and, eq }) =>
-          and(eq(uc.userId, user.id), eq(uc.courseId, courseId)),
-      });
-
-      // Validamos si la materia tiene aprobadas o regularizadas las equivalencias
-      if (status !== "PENDIENTE") {
-        const correlatives = await ctx.db.query.correlatives.findMany({
-          where: (c, { eq }) => eq(c.courseId, courseId),
+      const existingOptativeUserCourse =
+        await ctx.db.query.usersCourses.findFirst({
+          where: (uc, { and, eq }) =>
+            and(
+              eq(uc.userId, user.id),
+              eq(uc.placeholderCourseId, placeholderCourseId)
+            ),
         });
 
-        if (correlatives.length > 0) {
-          const userCorrelatives = await ctx.db.query.usersCourses.findMany({
-            where: (uc, { and, eq, inArray }) =>
-              and(
-                eq(uc.userId, user.id),
-                inArray(
-                  uc.courseId,
-                  correlatives.map((c) => c.requiredCourseId)
-                )
-              ),
+      if (existingOptativeUserCourse) {
+        return {
+          success: false,
+          error: "La asignatura optativa ya está asignada en otra asignatura.",
+        };
+      }
+
+      const [userCourse] = await ctx.db
+        .insert(usersCourses)
+        .values({
+          userId: user.id,
+          courseId,
+          placeholderCourseId,
+          status: "PENDIENTE",
+          qualification: null,
+          updatedAt: new Date(),
+        })
+        .onConflictDoUpdate({
+          target: [usersCourses.userId, usersCourses.courseId],
+          set: {
+            placeholderCourseId,
+            updatedAt: new Date(),
+          },
+        })
+        .returning();
+
+      return { success: true, userCourse };
+    }),
+
+  updateCourseProgress: protectedProcedure
+    .input(
+      z.object({
+        courseId: z.number(),
+        placeholderCourseId: z.number().nullable(),
+        status: z.enum(statusKeys),
+        qualification: z.number().min(4).max(10).nullable(),
+      })
+    )
+    .mutation(
+      async ({
+        input: { courseId, placeholderCourseId, status, qualification },
+        ctx,
+      }) => {
+        const user = ctx.session?.user;
+
+        if (!user) return null;
+
+        const course = await ctx.db.query.courses.findFirst({
+          where: (courses, { eq }) => eq(courses.id, courseId),
+        });
+
+        if (!course) return null;
+
+        const userCourse = await ctx.db.query.usersCourses.findFirst({
+          where: (uc, { and, eq }) =>
+            and(eq(uc.userId, user.id), eq(uc.courseId, courseId)),
+        });
+
+        if (status !== "PENDIENTE") {
+          const correlatives = await ctx.db.query.correlatives.findMany({
+            where: (c, { eq }) => eq(c.courseId, courseId),
           });
 
-          const allCorrelativesPassed = correlatives.every((correlative) =>
-            userCorrelatives.some(
-              (uc) =>
-                uc.courseId === correlative.requiredCourseId &&
-                (uc.status === "APROBADA" || uc.status === "REGULARIZADA")
-            )
-          );
-
-          if (!allCorrelativesPassed) {
-            throw new TRPCError({
-              code: "FORBIDDEN",
-              message:
-                "No puedes cambiar el estado de esta materia porque no tenés todas las correlativas aprobadas o regularizadas.",
+          if (correlatives.length > 0) {
+            const userCorrelatives = await ctx.db.query.usersCourses.findMany({
+              where: (uc, { and, eq, inArray }) =>
+                and(
+                  eq(uc.userId, user.id),
+                  inArray(
+                    uc.courseId,
+                    correlatives.map((c) => c.requiredCourseId)
+                  )
+                ),
             });
+
+            const allCorrelativesPassed = correlatives.every((correlative) =>
+              userCorrelatives.some(
+                (uc) =>
+                  uc.courseId === correlative.requiredCourseId &&
+                  (uc.status === "APROBADA" || uc.status === "REGULARIZADA")
+              )
+            );
+
+            if (!allCorrelativesPassed) {
+              throw new TRPCError({
+                code: "FORBIDDEN",
+                message:
+                  "No puedes cambiar el estado de esta materia porque no tenés todas las correlativas aprobadas o regularizadas.",
+              });
+            }
           }
         }
-      }
 
-      if (status === "PENDIENTE") {
-        if (userCourse) {
-          await ctx.db
-            .delete(usersCourses)
-            .where(eq(usersCourses.id, userCourse.id));
+        if (status === "PENDIENTE") {
+          if (userCourse) {
+            await ctx.db
+              .delete(usersCourses)
+              .where(eq(usersCourses.id, userCourse.id));
+          }
+          return { success: true, userCourse: null };
         }
-        return { success: true, userCourse: null };
-      }
 
-      if (!userCourse) {
-        const [newUserCourse] = await ctx.db
-          .insert(usersCourses)
-          .values({
-            userId: user.id,
-            courseId: courseId,
-            status,
-            qualification,
-            updatedAt: new Date(),
-          })
-          .returning();
-        return { success: true, userCourse: newUserCourse };
-      } else {
-        const [updatedUserCourse] = await ctx.db
-          .update(usersCourses)
-          .set({
-            status,
-            qualification,
-            updatedAt: new Date(),
-          })
-          .where(eq(usersCourses.id, userCourse.id))
-          .returning();
-        return { success: true, userCourse: updatedUserCourse };
+        if (!userCourse) {
+          const [newUserCourse] = await ctx.db
+            .insert(usersCourses)
+            .values({
+              userId: user.id,
+              courseId: courseId,
+              placeholderCourseId,
+              status,
+              qualification,
+              updatedAt: new Date(),
+            })
+            .returning();
+          return { success: true, userCourse: newUserCourse };
+        } else {
+          const [updatedUserCourse] = await ctx.db
+            .update(usersCourses)
+            .set({
+              placeholderCourseId,
+              status,
+              qualification,
+              updatedAt: new Date(),
+            })
+            .where(eq(usersCourses.id, userCourse.id))
+            .returning();
+          return { success: true, userCourse: updatedUserCourse };
+        }
       }
-    }),
+    ),
 });
