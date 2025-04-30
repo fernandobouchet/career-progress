@@ -23,9 +23,9 @@ const CourseCardContentWrapper = ({ course, handleOnClose }: Props) => {
 
   if (isMobile) {
     return (
-      <DrawerContent className="h-full">
+      <DrawerContent className="min-h-10/12">
         <DrawerDescription />
-        <DrawerHeader className="text-left">
+        <DrawerHeader className="text-left py-3">
           <DrawerTitle>{course.name}</DrawerTitle>
         </DrawerHeader>
         <CourseCardContent course={course} handleOnClose={handleOnClose} />

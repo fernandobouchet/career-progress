@@ -16,27 +16,31 @@ const tabsInfo = [
 ];
 
 const CourseCardContent = ({ course, handleOnClose }: Props) => {
-  if (course.isPlaceholder && course.optatives)
-    return <CourseOptativeForm course={course} />;
-
   return (
-    <div className="w-full h-full flex flex-col p-4 md:p-0">
+    <div className="w-full h-full flex flex-col p-2 md:p-0">
       <Tabs defaultValue={tabsInfo[0].key} className="w-full h-full">
-        <TabsList className="grid w-full grid-cols-2 rounded-3xl bg-sidebar h-14">
+        <TabsList className="grid w-full grid-cols-2 rounded-3xl bg-sidebar h-12 md:h-14">
           {tabsInfo.map((item) => (
             <TabsTrigger
               key={item.key}
               value={item.key}
               className="rounded-3xl h-full text-base w-full data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:hover:bg-accent/90 hover:bg-muted hover:text-foreground cursor-pointer"
+              disabled={
+                course.isPlaceholder && !course.progress?.placeholderCourseId
+              }
             >
               {item.title}
             </TabsTrigger>
           ))}
         </TabsList>
         <TabsContent value="info">
-          <ScrollArea type="scroll" className="h-80 [&>*>*]:h-full">
-            <CourseCardInfo course={course} />
-          </ScrollArea>
+          {course.isPlaceholder && !course.progress?.placeholderCourseId ? (
+            <CourseOptativeForm course={course} />
+          ) : (
+            <ScrollArea type="scroll" className="h-80 [&>*>*]:h-full">
+              <CourseCardInfo course={course} />
+            </ScrollArea>
+          )}
         </TabsContent>
         <TabsContent value="state">
           <CourseCardForm course={course} handleOnClose={handleOnClose} />
