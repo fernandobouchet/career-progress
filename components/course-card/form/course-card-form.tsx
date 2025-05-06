@@ -39,7 +39,11 @@ interface Props {
 }
 
 const CourseCardForm = ({ course, handleOnClose }: Props) => {
-  const { updateCourseStatus, areCourseCorrelativesPassed } = useUserData();
+  const {
+    updateCourseStatus,
+    deleteCourseProgress,
+    areCourseCorrelativesPassed,
+  } = useUserData();
 
   const form = useForm<z.infer<typeof formSchema>>({
     mode: "onChange",
@@ -57,6 +61,11 @@ const CourseCardForm = ({ course, handleOnClose }: Props) => {
       status: values.status,
       qualification: values.qualification,
     });
+    handleOnClose();
+  }
+
+  async function onDeleteProgress() {
+    deleteCourseProgress(course.id);
     handleOnClose();
   }
 
@@ -89,13 +98,23 @@ const CourseCardForm = ({ course, handleOnClose }: Props) => {
           </p>
         )}
 
-        <Button
-          className="ml-auto cursor-pointer"
-          type="submit"
-          disabled={!form.formState.isDirty}
-        >
-          Guardar
-        </Button>
+        <div className="flex justify-between items-center">
+          <Button
+            variant="destructive"
+            className="cursor-pointer"
+            onClick={onDeleteProgress}
+            disabled={!course.progress}
+          >
+            Eliminar progreso
+          </Button>
+          <Button
+            className="ml-auto cursor-pointer"
+            type="submit"
+            disabled={!form.formState.isDirty}
+          >
+            Guardar
+          </Button>
+        </div>
       </form>
     </Form>
   );

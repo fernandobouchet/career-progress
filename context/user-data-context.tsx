@@ -17,6 +17,7 @@ type UserDataContextType = {
   userProgress: UserProgressStatus[];
   updateCourseStatus: (params: UpdateUserProgressStatus) => void;
   updateOptionalCourse: (params: UpdateOptionalCourse) => void;
+  deleteCourseProgress: (courseId: number) => void;
   areCourseCorrelativesPassed: (course: Course) => boolean;
   getUnmetCorrelatives: (course: Course) => RequiredCourse[];
   isLoading: boolean;
@@ -189,6 +190,46 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
     },
   });
 
+  const deleteCourseProgressMutation =
+    api.user.deleteCourseProgress.useMutation({
+      onMutate: async ({ courseId }) => {
+        const previousProgress = [...userProgress];
+
+        const existingCourseIndex = previousProgress.findIndex(
+          (uc) => uc && uc.courseId === courseId
+        );
+
+        if (existingCourseIndex === -1) {
+          toast.error(
+            "No se encontró un progreso registrado en la asignatura."
+          );
+          return { previousProgress };
+        }
+
+        setUserProgress((prev) =>
+          prev.filter((uc) => uc?.courseId !== courseId)
+        );
+
+        return { previousProgress };
+      },
+
+      onError: (_err, _variables, context) => {
+        setUserProgress(
+          (context as { previousProgress: UserProgressStatus[] })
+            .previousProgress
+        );
+        toast.error("Error al eliminar el progreso de la base de datos");
+      },
+
+      onSuccess: (data) => {
+        if (!data?.success) {
+          toast.error("No se pudo eliminar el progreso.");
+          return;
+        }
+        toast.success("Progreso eliminado correctamente.");
+      },
+    });
+
   useEffect(() => {
     if (initialUserCourses) {
       setUserProgress(initialUserCourses as UserProgressStatus[]);
@@ -222,6 +263,15 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
       });
     },
     [updateOptionalCoursesMutation]
+  );
+
+  const deleteCourseProgress = useCallback(
+    (courseId: number) => {
+      deleteCourseProgressMutation.mutate({
+        courseId,
+      });
+    },
+    [deleteCourseProgressMutation]
   );
 
   const areCourseCorrelativesPassed = useCallback(
@@ -276,6 +326,7 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
       userProgress,
       updateCourseStatus,
       updateOptionalCourse,
+      deleteCourseProgress,
       areCourseCorrelativesPassed,
       getUnmetCorrelatives,
       isLoading: isLoadingCourses,
@@ -285,6 +336,7 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
       userProgress,
       updateCourseStatus,
       updateOptionalCourse,
+      deleteCourseProgress,
       areCourseCorrelativesPassed,
       getUnmetCorrelatives,
       isLoadingCourses,

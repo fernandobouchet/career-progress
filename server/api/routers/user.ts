@@ -16,6 +16,38 @@ export const userRouter = createTRPCRouter({
     });
     return userCourses;
   }),
+  deleteCourseProgress: protectedProcedure
+    .input(
+      z.object({
+        courseId: z.number(),
+      })
+    )
+    .mutation(async ({ input: { courseId }, ctx }) => {
+      const user = ctx.session?.user;
+      if (!user) return { success: false, error: "Usuario no autenticado." };
+
+      const course = await ctx.db.query.courses.findFirst({
+        where: (courses, { eq }) => eq(courses.id, courseId),
+      });
+
+      if (!course)
+        return { success: false, error: "Asignatura no encontrada." };
+
+      const userCourse = await ctx.db.query.usersCourses.findFirst({
+        where: (uc, { and, eq }) =>
+          and(eq(uc.userId, user.id), eq(uc.courseId, courseId)),
+      });
+      if (!userCourse)
+        return {
+          success: false,
+          error: "Progreso de la asignatura no encontrado.",
+        };
+
+      await ctx.db
+        .delete(usersCourses)
+        .where(eq(usersCourses.id, userCourse.id));
+      return { success: true };
+    }),
   setOptativeCourse: protectedProcedure
     .input(
       z.object({
