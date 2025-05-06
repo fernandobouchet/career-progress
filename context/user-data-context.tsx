@@ -12,6 +12,7 @@ import {
 import { api } from "@/trpc/react";
 import { toast } from "sonner";
 import { useUserProgressMap } from "@/hooks/use-user-progress-map";
+import { Session } from "next-auth";
 
 type UserDataContextType = {
   userProgress: UserProgressStatus[];
@@ -28,13 +29,20 @@ const UserDataContext = createContext<UserDataContextType | undefined>(
   undefined
 );
 
-export function UserDataProvider({ children }: { children: ReactNode }) {
+export function UserDataProvider({
+  children,
+  session,
+}: {
+  children: ReactNode;
+  session: Session | null;
+}) {
   const [userProgress, setUserProgress] = useState<UserProgressStatus[]>([]);
 
   const { data: initialUserCourses, isLoading: isLoadingCourses } =
     api.user.getCourseProgress.useQuery(undefined, {
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
+      enabled: !!session,
     });
 
   const updateUserCoursesMutation = api.user.updateCourseProgress.useMutation({
