@@ -76,7 +76,7 @@ type UserProgressStatus = {
 
 type UpdateUserProgressStatus = {
   courseId: number;
-  placeholderCourseId: number | null;
+  placeholderCourseId?: number | null;
   qualification: number | null;
   status: keyof typeof StatusEnum;
 };
