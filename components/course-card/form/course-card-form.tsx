@@ -10,6 +10,7 @@ import { statusKeys } from "@/types/constants";
 import { useUserData } from "@/context/user-data-context";
 import { CourseCardFormQualification } from "./course-card-form-qualification";
 import { CourseCardWarning } from "./course-card-warning";
+import { CourseDeleteProgressWarning } from "./course-delete-progress-warning";
 
 const formSchema = z
   .object({
@@ -39,11 +40,7 @@ interface Props {
 }
 
 const CourseCardForm = ({ course, handleOnClose }: Props) => {
-  const {
-    updateCourseStatus,
-    deleteCourseProgress,
-    areCourseCorrelativesPassed,
-  } = useUserData();
+  const { updateCourseStatus, areCourseCorrelativesPassed } = useUserData();
 
   const form = useForm<z.infer<typeof formSchema>>({
     mode: "onChange",
@@ -61,11 +58,6 @@ const CourseCardForm = ({ course, handleOnClose }: Props) => {
       status: values.status,
       qualification: values.qualification,
     });
-    handleOnClose();
-  }
-
-  async function onDeleteProgress() {
-    deleteCourseProgress(course.id);
     handleOnClose();
   }
 
@@ -99,14 +91,10 @@ const CourseCardForm = ({ course, handleOnClose }: Props) => {
         )}
 
         <div className="flex justify-between items-center">
-          <Button
-            variant="destructive"
-            className="cursor-pointer"
-            onClick={onDeleteProgress}
-            disabled={!course.progress}
-          >
-            Eliminar progreso
-          </Button>
+          <CourseDeleteProgressWarning
+            course={course}
+            handleOnClose={handleOnClose}
+          />
           <Button
             className="ml-auto cursor-pointer"
             type="submit"
