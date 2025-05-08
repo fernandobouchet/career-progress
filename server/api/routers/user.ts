@@ -68,9 +68,6 @@ export const userRouter = createTRPCRouter({
           status: c.course.progress[0]?.status,
         }));
 
-      console.log("blockingCourses", blockingCourses);
-      console.log("progressedCourses", progressedCourses);
-
       if (progressedCourses.length > 0) {
         throw new TRPCError({
           code: "FORBIDDEN",
