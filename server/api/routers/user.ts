@@ -44,6 +44,41 @@ export const userRouter = createTRPCRouter({
           message: "Progreso de la asignatura no encontrado.",
         });
 
+      const blockingCourses = await ctx.db.query.correlatives.findMany({
+        where: (course, { eq }) => eq(course.requiredCourseId, courseId),
+        with: {
+          course: {
+            with: {
+              progress: {
+                where: (users, { eq }) => eq(users.userId, user.id),
+              },
+            },
+          },
+        },
+      });
+
+      const progressedCourses = blockingCourses
+        .filter((c) => {
+          const status = c.course.progress[0]?.status;
+          return status !== "PENDIENTE";
+        })
+        .map((c) => ({
+          id: c.course.id,
+          name: c.course.name,
+          status: c.course.progress[0]?.status,
+        }));
+
+      console.log("blockingCourses", blockingCourses);
+      console.log("progressedCourses", progressedCourses);
+
+      if (progressedCourses.length > 0) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message:
+            "No es posible eliminar el progreso de esta asignatura porque es requerida por otras que ya tienen un progreso guardado.",
+        });
+      }
+
       await ctx.db
         .delete(usersCourses)
         .where(eq(usersCourses.id, userCourse.id));

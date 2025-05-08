@@ -47,6 +47,7 @@ type Course = {
   progress?: UserProgressStatus;
   correlatives?: RequiredCourse[];
   optatives?: OptionalCourse[];
+  dependents?: CourseIdAndName[];
 };
 
 type RequiredCourse = {
