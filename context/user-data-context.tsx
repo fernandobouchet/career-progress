@@ -22,7 +22,10 @@ type UserDataContextType = {
   updateOptionalCourse: (params: UpdateOptionalCourse) => void;
   deleteCourseProgress: (courseId: number) => void;
   areCourseCorrelativesPassed: (course: Course) => boolean;
-  getUnmetCorrelatives: (course: Course) => RequiredCourse[];
+  getCorrelativesStatus: (course: Course) => {
+    pending: RequiredCourse[];
+    passed: RequiredCourse[];
+  };
   isLoading: boolean;
 };
 
@@ -51,7 +54,7 @@ export function UserDataProvider({
     userProgress,
     setUserProgress,
   });
-  const { areCourseCorrelativesPassed, getUnmetCorrelatives } =
+  const { areCourseCorrelativesPassed, getCorrelativesStatus } =
     useUserCourseCorrelatives(userProgress);
 
   const { data: initialUserCourses, isLoading: isLoadingCourses } =
@@ -104,7 +107,7 @@ export function UserDataProvider({
       updateOptionalCourse,
       deleteCourseProgress,
       areCourseCorrelativesPassed,
-      getUnmetCorrelatives,
+      getCorrelativesStatus,
       isLoading: isLoadingCourses,
     }),
     [
@@ -113,7 +116,7 @@ export function UserDataProvider({
       updateOptionalCourse,
       deleteCourseProgress,
       areCourseCorrelativesPassed,
-      getUnmetCorrelatives,
+      getCorrelativesStatus,
       isLoadingCourses,
     ]
   );

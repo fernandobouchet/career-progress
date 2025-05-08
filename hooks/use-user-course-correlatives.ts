@@ -21,16 +21,12 @@ export const useUserCourseCorrelatives = (
     [userProgressMap]
   );
 
-  const getUnmetCorrelatives = useCallback(
+  const getCorrelativesStatus = useCallback(
     (course: Course) => {
-      const courseCorrelatives = course.correlatives;
-      const unmetCorrelatives: RequiredCourse[] = [];
+      const pending: RequiredCourse[] = [];
+      const passed: RequiredCourse[] = [];
 
-      if (!courseCorrelatives || courseCorrelatives.length === 0) {
-        return unmetCorrelatives;
-      }
-
-      for (const correlative of courseCorrelatives) {
+      for (const correlative of course.correlatives ?? []) {
         const requiredCourse = correlative.requiredCourse;
         const progress = userProgressMap.get(requiredCourse.id);
 
@@ -38,20 +34,21 @@ export const useUserCourseCorrelatives = (
           progress?.status === "APROBADA" ||
           progress?.status === "REGULARIZADA";
 
+        const entry = {
+          requiredCourse: { id: requiredCourse.id, name: requiredCourse.name },
+        };
+
         if (!isPassed) {
-          unmetCorrelatives.push({
-            requiredCourse: {
-              id: requiredCourse.id,
-              name: requiredCourse.name,
-            },
-          });
+          pending.push(entry);
+        } else {
+          passed.push(entry);
         }
       }
 
-      return unmetCorrelatives;
+      return { pending, passed };
     },
     [userProgressMap]
   );
 
-  return { areCourseCorrelativesPassed, getUnmetCorrelatives };
+  return { areCourseCorrelativesPassed, getCorrelativesStatus };
 };

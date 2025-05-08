@@ -6,9 +6,9 @@ interface Props {
 }
 
 const CourseCardWarning = ({ course }: Props) => {
-  const { getUnmetCorrelatives } = useUserData();
+  const { getCorrelativesStatus } = useUserData();
 
-  const missingCorrelatives = getUnmetCorrelatives(course);
+  const missingCorrelatives = getCorrelativesStatus(course).pending;
   return (
     <div className="flex flex-col gap-2 p-4 text-sm">
       <p>
