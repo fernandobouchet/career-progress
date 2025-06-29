@@ -71,11 +71,17 @@ export function UserDataProvider({
   }, [initialUserCourses]);
 
   const updateCourseStatus = useCallback(
-    ({ courseId, status, qualification }: UpdateUserProgressStatus) => {
+    ({
+      courseId,
+      status,
+      qualification,
+      approvedDate,
+    }: UpdateUserProgressStatus) => {
       updateUserCourseMutation.mutate({
         courseId,
         status,
         qualification,
+        approvedDate,
       });
     },
     [updateUserCourseMutation]

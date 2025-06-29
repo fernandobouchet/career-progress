@@ -11,6 +11,7 @@ import { useUserData } from "@/context/user-data-context";
 import { CourseCardFormQualification } from "./course-card-form-qualification";
 import { CourseCardWarning } from "./course-card-warning";
 import { CourseDeleteProgressWarning } from "./course-delete-progress-warning";
+import { DatePicker } from "@/components/ui/date-picker"; // Added import
 
 const formSchema = z
   .object({
@@ -20,6 +21,7 @@ const formSchema = z
       .min(4, { message: "La calificación debe ser superior o igual a 4." })
       .max(10, { message: "La calificación debe ser inferior o igual a 10." })
       .nullable(),
+    approvedDate: z.date().nullable(), // Added approvedDate field
   })
   .refine(
     (data) =>
@@ -30,8 +32,17 @@ const formSchema = z
         "Debes indicar la calificación cuando el estado de la materia es: 'Aprobada'.",
       path: ["qualification"],
     }
+  )
+  .refine(
+    (data) => data.status !== "APROBADA" || data.approvedDate !== null, // Added refinement for approvedDate
+    {
+      message:
+        "Debes indicar la fecha de aprobación cuando el estado de la materia es: 'Aprobada'.",
+      path: ["approvedDate"],
+    }
   );
 
+export type ProgressForm = z.infer<typeof formSchema>; // Changed to ProgressForm
 export type ProgressFormReturn = UseFormReturn<ProgressForm>;
 
 interface Props {
@@ -48,8 +59,13 @@ const CourseCardForm = ({ course, handleOnClose }: Props) => {
     defaultValues: {
       status: course.progress?.status ? course.progress.status : "PENDIENTE",
       qualification: course?.progress ? course.progress.qualification : null,
+      approvedDate: course?.progress?.approvedDate // Added approvedDate default value
+        ? new Date(course.progress.approvedDate)
+        : null,
     },
   });
+
+  const status = form.watch("status"); // Watch status field
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     updateCourseStatus({
@@ -57,6 +73,7 @@ const CourseCardForm = ({ course, handleOnClose }: Props) => {
       placeholderCourseId: course.progress?.placeholderCourseId ?? null,
       status: values.status,
       qualification: values.qualification,
+      approvedDate: values.approvedDate, // Added approvedDate to onSubmit
     });
     handleOnClose();
   }
@@ -74,9 +91,20 @@ const CourseCardForm = ({ course, handleOnClose }: Props) => {
         <h3 className="font-medium">
           Modifica el estado y/o la calificación de la asignatura.
         </h3>
-        <div className="w-full flex justify-evenly">
-          <CourseCardFormStatus form={form} />
-          <CourseCardFormQualification form={form} />
+        <div className="w-full flex flex-col items-center">
+          <div className="w-full flex justify-evenly">
+            <CourseCardFormStatus form={form} />
+            <CourseCardFormQualification form={form} />
+          </div>
+          {status === "APROBADA" && ( // Conditionally render DatePicker
+            <div className="mt-4">
+              <DatePicker
+                form={form}
+                name="approvedDate"
+                label="Fecha de aprobación"
+              />
+            </div>
+          )}
         </div>
         {form.formState.errors.status && (
           <p className="text-sm text-red-500 text-center">

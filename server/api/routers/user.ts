@@ -144,12 +144,17 @@ export const userRouter = createTRPCRouter({
         courseId: z.number(),
         status: z.enum(statusKeys),
         qualification: z.number().min(4).max(10).nullable(),
+        approvedDate: z.date().nullable(), // Added approvedDate
       })
     )
-    .mutation(async ({ input: { courseId, status, qualification }, ctx }) => {
-      const user = ctx.session.user;
+    .mutation(
+      async ({
+        input: { courseId, status, qualification, approvedDate }, // Added approvedDate
+        ctx,
+      }) => {
+        const user = ctx.session.user;
 
-      const course = await ctx.db.query.courses.findFirst({
+        const course = await ctx.db.query.courses.findFirst({
         where: (courses, { eq }) => eq(courses.id, courseId),
       });
 
@@ -216,6 +221,8 @@ export const userRouter = createTRPCRouter({
             courseId: courseId,
             status,
             qualification: status === "APROBADA" ? qualification : null,
+            approvedDate:
+              status === "APROBADA" ? approvedDate : null, // Added approvedDate
           })
           .returning();
         return { success: true, userCourse: newUserCourse };
@@ -225,6 +232,8 @@ export const userRouter = createTRPCRouter({
           .set({
             status,
             qualification: status === "APROBADA" ? qualification : null,
+            approvedDate:
+              status === "APROBADA" ? approvedDate : null, // Added approvedDate
             updatedAt: new Date(),
           })
           .where(eq(usersCourses.id, userCourse.id))

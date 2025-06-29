@@ -72,6 +72,7 @@ type UserProgressStatus = {
   placeholderCourseId: number | null;
   qualification: number | null;
   status: keyof typeof StatusEnum;
+  approvedDate?: Date | null; // Added approvedDate
   updatedAt: Date;
 } | null;
 
@@ -80,6 +81,7 @@ type UpdateUserProgressStatus = {
   placeholderCourseId?: number | null;
   qualification: number | null;
   status: keyof typeof StatusEnum;
+  approvedDate?: Date | null; // Added approvedDate
 };
 
 type ProgressForm = {
