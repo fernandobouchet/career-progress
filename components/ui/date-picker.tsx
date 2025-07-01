@@ -1,10 +1,11 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { format } from "date-fns";
+import { format, startOfMonth } from "date-fns"; // Added startOfMonth
+import { es } from "date-fns/locale"; // Added Spanish locale
 import { CalendarIcon } from "lucide-react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+// import { useForm } from "react-hook-form"; // Removed unused import
+// import { z } from "zod"; // Removed unused import
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -52,9 +53,9 @@ export function DatePicker({ form, name, label, description }: DatePickerProps) 
                   )}
                 >
                   {field.value ? (
-                    format(field.value, "PPP")
+                    format(field.value, "MMMM yyyy", { locale: es }) // Changed format
                   ) : (
-                    <span>Pick a date</span>
+                    <span>Selecciona mes y año</span> // Changed placeholder
                   )}
                   <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                 </Button>
@@ -64,7 +65,17 @@ export function DatePicker({ form, name, label, description }: DatePickerProps) 
               <Calendar
                 mode="single"
                 selected={field.value}
-                onSelect={field.onChange}
+                onSelect={(date) => {
+                  if (date) {
+                    field.onChange(startOfMonth(date)); // Store first day of month
+                  } else {
+                    field.onChange(null);
+                  }
+                }}
+                defaultMonth={field.value ? startOfMonth(field.value) : startOfMonth(new Date())}
+                captionLayout="dropdown-buttons" // Added captionLayout
+                fromYear={new Date().getFullYear() - 10} // Example: 10 years back
+                toYear={new Date().getFullYear() + 10} // Example: 10 years forward
                 disabled={(date) =>
                   date > new Date() || date < new Date("1900-01-01")
                 }
