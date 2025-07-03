@@ -152,3 +152,17 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Styles for the month-year picker */
+.month-year-picker .rdp-table {
+  display: none;
+}
+
+.month-year-picker .rdp-caption_dropdowns {
+  justify-content: center; /* Center the dropdowns */
+}
+
+/* Optional: Adjust width if the picker looks too narrow or wide */
+.month-year-picker {
+  width: auto; /* Or a specific value like 200px if needed */
+}

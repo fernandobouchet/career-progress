@@ -107,18 +107,6 @@ export function DatePicker({ form, name, label, description }: DatePickerProps) 
             </PopoverContent>
           </Popover>
           {description && <FormDescription>{description}</FormDescription>}
-          {/* Simple way to inject CSS for this specific component instance */}
-          <style jsx global>{`
-            .month-year-picker .rdp-table {
-              display: none;
-            }
-            .month-year-picker .rdp-caption_dropdowns {
-              justify-content: center; /* Center the dropdowns */
-            }
-            .month-year-picker {
-              width: auto; /* Adjust width if necessary */
-            }
-          `}</style>
           <FormMessage />
         </FormItem>
       )}
