@@ -11,7 +11,17 @@ export const useUserCourseUpdateProgress = ({
   setUserProgress,
 }: Props) => {
   const updateUserCourseMutation = api.user.updateCourseProgress.useMutation({
-    onMutate: async ({ courseId, status, qualification }) => {
+    onMutate: async ({
+      courseId,
+      status,
+      qualification,
+      approvedDate,
+    }: {
+      courseId: number;
+      status: "PENDIENTE" | "CURSANDO" | "REGULARIZADA" | "APROBADA";
+      qualification: number | null;
+      approvedDate?: Date | null;
+    }) => {
       const previousProgress = [...userProgress];
       setUserProgress((prev) => {
         const existingCourseIndex = prev.findIndex(
@@ -32,6 +42,7 @@ export const useUserCourseUpdateProgress = ({
             status,
             qualification,
             updatedAt: new Date(),
+            approvedDate: status === "APROBADA" ? approvedDate : null,
           };
           return prev.map((uc, index) =>
             index === existingCourseIndex ? updatedCourse : uc
@@ -45,6 +56,7 @@ export const useUserCourseUpdateProgress = ({
             status,
             qualification,
             updatedAt: new Date(),
+            approvedDate: status === "APROBADA" ? approvedDate : null,
           };
           return [...prev, newCourse];
         }

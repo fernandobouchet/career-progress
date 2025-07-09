@@ -144,92 +144,100 @@ export const userRouter = createTRPCRouter({
         courseId: z.number(),
         status: z.enum(statusKeys),
         qualification: z.number().min(4).max(10).nullable(),
+        approvedDate: z.date().nullable().optional(),
       })
     )
-    .mutation(async ({ input: { courseId, status, qualification }, ctx }) => {
-      const user = ctx.session.user;
+    .mutation(
+      async ({
+        input: { courseId, status, qualification, approvedDate },
+        ctx,
+      }) => {
+        const user = ctx.session.user;
 
-      const course = await ctx.db.query.courses.findFirst({
-        where: (courses, { eq }) => eq(courses.id, courseId),
-      });
-
-      if (!course)
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Asignatura no encontrada.",
+        const course = await ctx.db.query.courses.findFirst({
+          where: (courses, { eq }) => eq(courses.id, courseId),
         });
 
-      const userCourse = await ctx.db.query.usersCourses.findFirst({
-        where: (uc, { and, eq }) =>
-          and(eq(uc.userId, user.id), eq(uc.courseId, courseId)),
-      });
-
-      if (status !== "PENDIENTE") {
-        const correlatives = await ctx.db.query.correlatives.findMany({
-          where: (c, { eq }) => eq(c.courseId, courseId),
-        });
-
-        if (correlatives.length > 0) {
-          const userCorrelatives = await ctx.db.query.usersCourses.findMany({
-            where: (uc, { and, eq, inArray }) =>
-              and(
-                eq(uc.userId, user.id),
-                inArray(
-                  uc.courseId,
-                  correlatives.map((c) => c.requiredCourseId)
-                )
-              ),
+        if (!course)
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Asignatura no encontrada.",
           });
 
-          const allCorrelativesPassed = correlatives.every((correlative) =>
-            userCorrelatives.some(
-              (uc) =>
-                uc.courseId === correlative.requiredCourseId &&
-                (uc.status === "APROBADA" || uc.status === "REGULARIZADA")
-            )
-          );
+        const userCourse = await ctx.db.query.usersCourses.findFirst({
+          where: (uc, { and, eq }) =>
+            and(eq(uc.userId, user.id), eq(uc.courseId, courseId)),
+        });
 
-          if (!allCorrelativesPassed) {
-            throw new TRPCError({
-              code: "FORBIDDEN",
-              message:
-                "No puedes cambiar el estado de esta materia porque no tenés todas las correlativas aprobadas o regularizadas.",
+        if (status !== "PENDIENTE") {
+          const correlatives = await ctx.db.query.correlatives.findMany({
+            where: (c, { eq }) => eq(c.courseId, courseId),
+          });
+
+          if (correlatives.length > 0) {
+            const userCorrelatives = await ctx.db.query.usersCourses.findMany({
+              where: (uc, { and, eq, inArray }) =>
+                and(
+                  eq(uc.userId, user.id),
+                  inArray(
+                    uc.courseId,
+                    correlatives.map((c) => c.requiredCourseId)
+                  )
+                ),
             });
+
+            const allCorrelativesPassed = correlatives.every((correlative) =>
+              userCorrelatives.some(
+                (uc) =>
+                  uc.courseId === correlative.requiredCourseId &&
+                  (uc.status === "APROBADA" || uc.status === "REGULARIZADA")
+              )
+            );
+
+            if (!allCorrelativesPassed) {
+              throw new TRPCError({
+                code: "FORBIDDEN",
+                message:
+                  "No puedes cambiar el estado de esta materia porque no tenés todas las correlativas aprobadas o regularizadas.",
+              });
+            }
           }
         }
-      }
 
-      if (status === "PENDIENTE") {
-        if (userCourse) {
-          await ctx.db
-            .delete(usersCourses)
-            .where(eq(usersCourses.id, userCourse.id));
+        if (status === "PENDIENTE") {
+          if (userCourse) {
+            await ctx.db
+              .delete(usersCourses)
+              .where(eq(usersCourses.id, userCourse.id));
+          }
+          return { success: true };
         }
-        return { success: true };
-      }
 
-      if (!userCourse) {
-        const [newUserCourse] = await ctx.db
-          .insert(usersCourses)
-          .values({
-            userId: user.id,
-            courseId: courseId,
-            status,
-            qualification: status === "APROBADA" ? qualification : null,
-          })
-          .returning();
-        return { success: true, userCourse: newUserCourse };
-      } else {
-        const [updatedUserCourse] = await ctx.db
-          .update(usersCourses)
-          .set({
-            status,
-            qualification: status === "APROBADA" ? qualification : null,
-            updatedAt: new Date(),
-          })
-          .where(eq(usersCourses.id, userCourse.id))
-          .returning();
-        return { success: true, userCourse: updatedUserCourse };
+        if (!userCourse) {
+          const [newUserCourse] = await ctx.db
+            .insert(usersCourses)
+            .values({
+              userId: user.id,
+              courseId: courseId,
+              status,
+              qualification: status === "APROBADA" ? qualification : null,
+              approvedDate: status === "APROBADA" ? approvedDate : null,
+            })
+            .returning();
+          return { success: true, userCourse: newUserCourse };
+        } else {
+          const [updatedUserCourse] = await ctx.db
+            .update(usersCourses)
+            .set({
+              status,
+              qualification: status === "APROBADA" ? qualification : null,
+              updatedAt: new Date(),
+              approvedDate: status === "APROBADA" ? approvedDate : null,
+            })
+            .where(eq(usersCourses.id, userCourse.id))
+            .returning();
+          return { success: true, userCourse: updatedUserCourse };
+        }
       }
-    }),
+    ),
 });

@@ -28,10 +28,8 @@ const CourseCardFormQualification = ({ form }: Props) => {
           <Select
             disabled={form.watch("status") !== "APROBADA"}
             onValueChange={field.onChange}
-            defaultValue={
-              typeof field.value !== "number"
-                ? undefined
-                : field.value.toString()
+            value={
+              typeof field.value === "number" ? field.value.toString() : ""
             }
           >
             <FormControl className="border-none bg-accent hover:bg-accent/80 [&>span]:mx-auto w-24">
