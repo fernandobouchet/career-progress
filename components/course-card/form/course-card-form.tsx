@@ -11,17 +11,13 @@ import { CourseCardFormQualification } from "./course-card-form-qualification";
 import { CourseCardWarning } from "./course-card-warning";
 import { CourseDeleteProgressWarning } from "./course-delete-progress-warning";
 import { CourseCardFormDate } from "./course-card-form-date";
+import { statusKeys } from "@/types/constants";
 
-const MIN_YEAR = 2010; // Cambia este valor si quieres otro año mínimo
+const MIN_YEAR = 2015;
 
 const formSchema = z
   .object({
-    status: z.enum([
-      "PENDIENTE",
-      "CURSANDO",
-      "REGULARIZADA",
-      "APROBADA",
-    ] as const),
+    status: z.enum(statusKeys),
     qualification: z.coerce
       .number()
       .min(4, { message: "La calificación debe ser superior o igual a 4." })

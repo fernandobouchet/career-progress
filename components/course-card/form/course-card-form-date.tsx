@@ -12,7 +12,7 @@ interface Props {
   form: ProgressFormReturn;
 }
 
-const MIN_YEAR = 2010;
+const MIN_YEAR = 2015;
 const CURRENT_YEAR = new Date().getFullYear();
 
 export const CourseCardFormDate = ({ form }: Props) => {
@@ -46,7 +46,7 @@ export const CourseCardFormDate = ({ form }: Props) => {
             }
           }}
         >
-          <SelectTrigger className="w-28">
+          <SelectTrigger className="w-32">
             <SelectValue placeholder="Mes" />
           </SelectTrigger>
           <SelectContent>
@@ -73,7 +73,7 @@ export const CourseCardFormDate = ({ form }: Props) => {
             }
           }}
         >
-          <SelectTrigger className="w-20">
+          <SelectTrigger className="w-24">
             <SelectValue placeholder="Año" />
           </SelectTrigger>
           <SelectContent>
