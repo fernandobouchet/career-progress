@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, UseFormReturn } from "react-hook-form";
+import { useForm, UseFormReturn, Resolver } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
@@ -58,7 +58,7 @@ const CourseCardForm = ({ course, handleOnClose }: Props) => {
 
   const form = useForm<ProgressForm>({
     mode: "onChange",
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(formSchema) as Resolver<ProgressForm>,
     defaultValues: {
       status: course.progress?.status
         ? (course.progress.status as ProgressForm["status"])

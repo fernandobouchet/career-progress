@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, Resolver } from "react-hook-form";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -29,7 +29,7 @@ interface Props {
 
 const FormSchema = z.object({
   optativeId: z.coerce.number({
-    required_error: "Por favor selecciona una de las opciones.",
+    message: "Por favor selecciona una de las opciones.",
   }),
 });
 
@@ -37,7 +37,7 @@ const CourseOptativeForm = ({ course }: Props) => {
   const { updateOptionalCourse } = useUserData();
 
   const form = useForm<z.infer<typeof FormSchema>>({
-    resolver: zodResolver(FormSchema),
+    resolver: zodResolver(FormSchema) as Resolver<z.infer<typeof FormSchema>>,
   });
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
