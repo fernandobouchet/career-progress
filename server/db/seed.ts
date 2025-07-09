@@ -9,6 +9,7 @@ import { licenciaturaInformaticaCourseCorrelativesSeed } from "./seeds/careers/l
 import { licenciaturaInformaticaCourseOptativesSeed } from "./seeds/careers/licenciatura-informatica/course-optatives";
 import { licenciaturaInformaticaPeriodCoursesSeed } from "./seeds/careers/licenciatura-informatica/career-periods-courses";
 import { tecnicaturaProgramacionPeriodCoursesSeed } from "./seeds/careers/tecnicatura-programacion/career-periods-courses";
+import { courseEquivalentsSeeds } from "./seeds/course-equivalents";
 
 export const db = drizzle(process.env.DATABASE_URL!, { schema });
 
@@ -87,6 +88,13 @@ async function seed() {
     await db
       .insert(schema.optatives)
       .values(licenciaturaInformaticaCourseOptativesSeed);
+
+    await db.insert(schema.courseEquivalenceGroups).values({
+      id: "eq-matematica-1",
+      careerId: 1,
+    });
+
+    await db.insert(schema.equivalents).values(courseEquivalentsSeeds);
 
     console.log("Seeds insertados/actualizados correctamente!");
   } catch (error) {
