@@ -18,8 +18,11 @@ const tabsInfo = [
 const CourseCardContent = ({ course, handleOnClose }: Props) => {
   return (
     <div className="w-full h-full flex flex-col p-2 md:p-0">
-      <Tabs defaultValue={tabsInfo[0].key} className="w-full h-full">
-        <TabsList className="grid w-full grid-cols-2 rounded-3xl bg-sidebar h-12 md:h-14">
+      <Tabs
+        defaultValue={tabsInfo[0].key}
+        className="w-full h-full flex flex-col"
+      >
+        <TabsList className="grid w-full grid-cols-2 rounded-3xl bg-sidebar h-12 md:h-14 flex-shrink-0">
           {tabsInfo.map((item) => (
             <TabsTrigger
               key={item.key}
@@ -33,18 +36,23 @@ const CourseCardContent = ({ course, handleOnClose }: Props) => {
             </TabsTrigger>
           ))}
         </TabsList>
-        <TabsContent value="info">
-          {course.isPlaceholder && !course.progress?.placeholderCourseId ? (
-            <CourseOptativeForm course={course} />
-          ) : (
-            <ScrollArea type="scroll" className="h-80 [&>*>*]:h-full">
-              <CourseCardInfo course={course} />
-            </ScrollArea>
-          )}
-        </TabsContent>
-        <TabsContent value="state">
-          <CourseCardForm course={course} handleOnClose={handleOnClose} />
-        </TabsContent>
+        <div className="flex-1 overflow-hidden">
+          <TabsContent value="info" className="h-full">
+            {course.isPlaceholder && !course.progress?.placeholderCourseId ? (
+              <CourseOptativeForm course={course} />
+            ) : (
+              <ScrollArea
+                type="scroll"
+                className="h-full md:max-h-80 py-2 px-4"
+              >
+                <CourseCardInfo course={course} />
+              </ScrollArea>
+            )}
+          </TabsContent>
+          <TabsContent value="state" className="h-full py-2 px-4">
+            <CourseCardForm course={course} handleOnClose={handleOnClose} />
+          </TabsContent>
+        </div>
         {/*
         <TabsContent value="comments">
           Comentarios / consejos sobre la materia.

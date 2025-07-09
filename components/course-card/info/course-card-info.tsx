@@ -23,7 +23,7 @@ const CourseCardInfo = ({ course }: Props) => {
   }
 
   return (
-    <div className="h-full flex flex-col justify-between p-4">
+    <div className="flex flex-col gap-4">
       {course.isPlaceholder && <h2>{currentCourse.name}</h2>}
       <div className="flex flex-col gap-2 md:gap-0 md:flex-row justify-between py-2">
         <div className="flex items-center gap-2">
@@ -45,10 +45,10 @@ const CourseCardInfo = ({ course }: Props) => {
 
         <div
           className={`text-sm text-muted-foreground transition-all duration-300 ease-in-out ${
-            expanded ? "max-h-96" : "max-h-16"
+            expanded ? "max-h-full" : "max-h-32"
           } overflow-hidden`}
         >
-          <p className={!expanded ? "line-clamp-3" : ""}>
+          <p className={!expanded ? "line-clamp-2 md:line-clamp-5" : ""}>
             {currentCourse.info}
           </p>
         </div>

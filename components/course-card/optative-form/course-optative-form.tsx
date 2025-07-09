@@ -48,7 +48,7 @@ const CourseOptativeForm = ({ course }: Props) => {
   }
 
   return (
-    <div className="w-full h-full flex flex-col items-center p-4 md:p-0 gap-4">
+    <div className="w-full h-full flex flex-col items-center py-2 px-4 md:p-0 gap-4">
       <h2>Elección de la asignatura</h2>
       <Form {...form}>
         <form

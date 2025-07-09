@@ -92,9 +92,9 @@ const CourseCardForm = ({ course, handleOnClose }: Props) => {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="h-full flex flex-col justify-between p-4"
+        className="h-full flex flex-col justify-between"
       >
-        <h3 className="font-medium">
+        <h3 className="text-sm">
           Modifica el estado y/o la calificación de la asignatura.
         </h3>
         <div className="w-full flex justify-evenly">

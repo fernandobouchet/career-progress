@@ -23,13 +23,15 @@ const CourseCardContentWrapper = ({ course, handleOnClose }: Props) => {
 
   if (isMobile) {
     return (
-      <DrawerContent className="min-h-10/12">
+      <DrawerContent className="h-[90vh] flex flex-col">
         <DrawerDescription />
-        <DrawerHeader className="text-left py-3">
+        <DrawerHeader className="text-left py-3 flex-shrink-0">
           <DrawerTitle>{course.name}</DrawerTitle>
         </DrawerHeader>
-        <CourseCardContent course={course} handleOnClose={handleOnClose} />
-        <DrawerFooter className="pt-2">
+        <div className="flex-1 overflow-hidden">
+          <CourseCardContent course={course} handleOnClose={handleOnClose} />
+        </div>
+        <DrawerFooter className="pt-2 flex-shrink-0">
           <Button variant="outline" onClick={handleOnClose}>
             Cancelar
           </Button>
