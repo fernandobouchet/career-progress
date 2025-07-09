@@ -25,6 +25,7 @@ import {
 import Link from "next/link";
 import { ThemeToggle } from "../theme-toggle";
 import { usePathname } from "next/navigation";
+import { api } from "@/trpc/react";
 
 const iconMap: { [key: string]: React.ComponentType<LucideProps> } = {
   "licenciatura-informatica": GraduationCap,
@@ -40,9 +41,16 @@ const AppSidebar = ({
   ...props
 }: { careers: Career[] } & React.ComponentProps<typeof Sidebar>) => {
   const pathName = usePathname();
-  const initialCareers = careers;
 
-  const fetchedCareers = initialCareers?.map((career) => ({
+  // Obtener las carreras seleccionadas por el usuario
+  const { data: userCareers } = api.user.getUserCareers.useQuery();
+
+  // Filtrar las carreras para mostrar solo las seleccionadas por el usuario
+  const filteredCareers = careers.filter((career) =>
+    userCareers?.some((userCareer) => userCareer.id === career.id)
+  );
+
+  const fetchedCareers = filteredCareers?.map((career) => ({
     ...career,
     icon: iconMap[career.slug] || FileWarning,
   }));
@@ -70,8 +78,19 @@ const AppSidebar = ({
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroup>
-        <CustomSidebarGroup title="Licenciatura" items={degrees} />
-        <CustomSidebarGroup title="Tecnicatura" items={technicalPrograms} />
+        {degrees.length > 0 && (
+          <CustomSidebarGroup title="Licenciatura" items={degrees} />
+        )}
+        {technicalPrograms.length > 0 && (
+          <CustomSidebarGroup title="Tecnicatura" items={technicalPrograms} />
+        )}
+        {filteredCareers.length === 0 && (
+          <div className="p-4 text-center text-sm text-muted-foreground">
+            No hay carreras seleccionadas.
+            <br />
+            Ve a configuración para seleccionar tus carreras.
+          </div>
+        )}
       </SidebarContent>
       <SidebarFooter className="flex items-end">
         <ThemeToggle />

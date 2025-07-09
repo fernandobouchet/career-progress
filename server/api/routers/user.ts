@@ -1,5 +1,5 @@
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
-import { usersCourses } from "@/server/db/schema";
+import { usersCourses, usersCareers } from "@/server/db/schema";
 import { statusKeys } from "@/types/constants";
 import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
@@ -14,6 +14,44 @@ export const userRouter = createTRPCRouter({
     });
     return userCourses;
   }),
+
+  getUserCareers: protectedProcedure.query(async ({ ctx }) => {
+    const user = ctx.session.user;
+
+    const userCareers = await ctx.db.query.usersCareers.findMany({
+      where: (usersCareers, { eq }) => eq(usersCareers.userId, user.id),
+      with: {
+        career: true,
+      },
+    });
+
+    return userCareers.map((uc) => uc.career);
+  }),
+
+  updateUserCareers: protectedProcedure
+    .input(
+      z.object({
+        careerIds: z.array(z.number()),
+      })
+    )
+    .mutation(async ({ input: { careerIds }, ctx }) => {
+      const user = ctx.session.user;
+
+      // Eliminar todas las carreras actuales del usuario
+      await ctx.db.delete(usersCareers).where(eq(usersCareers.userId, user.id));
+
+      // Insertar las nuevas carreras seleccionadas
+      if (careerIds.length > 0) {
+        await ctx.db.insert(usersCareers).values(
+          careerIds.map((careerId) => ({
+            userId: user.id,
+            careerId,
+          }))
+        );
+      }
+
+      return { success: true };
+    }),
 
   deleteCourseProgress: protectedProcedure
     .input(
