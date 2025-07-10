@@ -1,4 +1,5 @@
 import { CareerProgramWrapper } from "@/components/career-program-wrapper";
+import { CareerProgressBar } from "@/components/career-progress-bar";
 import { db } from "@/server/db/drizzle";
 import { notFound } from "next/navigation";
 
@@ -63,6 +64,7 @@ const Page = async ({ params }: Props) => {
   return (
     <div className="w-full h-full flex flex-col items-center text-center">
       <h1 className="font-semibold text-2xl">{career.name}</h1>
+      <CareerProgressBar career={career} />
       <section className="w-full flex flex-col items-center py-4 gap-4">
         <h2 className="text-xl font-medium">
           {career.isDegree ? "Año" : "Cuatrimestre"}
