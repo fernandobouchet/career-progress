@@ -5,11 +5,14 @@ import { careersSeed } from "./seeds/careers";
 import { periodsSeed } from "./seeds/periods";
 import { sql } from "drizzle-orm";
 import { coursesSeed } from "./seeds/shared/courses";
-import { licenciaturaInformaticaCourseCorrelativesSeed } from "./seeds/careers/licenciatura-informatica/course-correlatives";
-import { licenciaturaInformaticaCourseOptativesSeed } from "./seeds/careers/licenciatura-informatica/course-optatives";
 import { licenciaturaInformaticaPeriodCoursesSeed } from "./seeds/careers/licenciatura-informatica/career-periods-courses";
 import { tecnicaturaProgramacionPeriodCoursesSeed } from "./seeds/careers/tecnicatura-programacion/career-periods-courses";
-import { courseEquivalentsSeeds } from "./seeds/course-equivalents";
+import { tecnicaturaInformaticaPeriodCoursesSeed } from "./seeds/careers/tecnicatura-informatica/career-periods-courses";
+import { tecnicaturaRedesPeriodCoursesSeed } from "./seeds/careers/tecnicatura-redes/career-periods-courses";
+import { tecnicaturaIAPeriodCoursesSeed } from "./seeds/careers/tecnicatura-ia/career-periods-courses";
+import { tecnicaturaVideojuegosPeriodCoursesSeed } from "./seeds/careers/tecnicatura-videojuegos/career-periods-courses";
+import { sharedCourseCorrelativesSeed } from "./seeds/shared/course-correlatives";
+import { sharedCourseOptativesSeed } from "./seeds/shared/course-optatives";
 
 export const db = drizzle(process.env.DATABASE_URL!, { schema });
 
@@ -69,6 +72,10 @@ async function seed() {
       .values([
         ...licenciaturaInformaticaPeriodCoursesSeed,
         ...tecnicaturaProgramacionPeriodCoursesSeed,
+        ...tecnicaturaInformaticaPeriodCoursesSeed,
+        ...tecnicaturaRedesPeriodCoursesSeed,
+        ...tecnicaturaIAPeriodCoursesSeed,
+        ...tecnicaturaVideojuegosPeriodCoursesSeed,
       ])
       .onConflictDoUpdate({
         target: schema.careersCourses.id,
@@ -80,21 +87,36 @@ async function seed() {
       });
 
     console.log("Insertando/Actualizando correlatividades...");
+    // Correlatividades compartidas (incluyen todas las carreras)
     await db
       .insert(schema.correlatives)
-      .values(licenciaturaInformaticaCourseCorrelativesSeed);
+      .values(sharedCourseCorrelativesSeed)
+      .onConflictDoUpdate({
+        target: schema.correlatives.id,
+        set: {
+          careerId: sql`EXCLUDED.career_id`,
+          courseId: sql`EXCLUDED.course_id`,
+          requiredCourseId: sql`EXCLUDED.required_course_id`,
+        },
+      });
 
     console.log("Insertando/Actualizando optativas...");
+    // Optativas compartidas (incluyen todas las carreras)
     await db
       .insert(schema.optatives)
-      .values(licenciaturaInformaticaCourseOptativesSeed);
+      .values(sharedCourseOptativesSeed)
+      .onConflictDoUpdate({
+        target: schema.optatives.id,
+        set: {
+          careerId: sql`EXCLUDED.career_id`,
+          courseId: sql`EXCLUDED.course_id`,
+          optionCourseId: sql`EXCLUDED.option_course_id`,
+        },
+      });
 
-    await db.insert(schema.courseEquivalenceGroups).values({
-      id: "eq-matematica-1",
-      careerId: 1,
-    });
-
-    await db.insert(schema.equivalents).values(courseEquivalentsSeeds);
+    console.log("Insertando/Actualizando equivalencias...");
+    //    await db.insert(schema.equivalencyGroups).values(equivalencyGroupsSeeds);
+    //  await db.insert(schema.equivalents).values(equivalentsSeeds);
 
     console.log("Seeds insertados/actualizados correctamente!");
   } catch (error) {
